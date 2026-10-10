@@ -3,7 +3,7 @@
 AI engineering prep for LLM roles around Toronto and Kitchener-Waterloo: an 8-week track with
 runnable Python exercises and projects, IBM Technology videos, AWS AI certification practice,
 and the skills real AI Engineer postings ask for. No build step, no backend: plain HTML, CSS and
-JavaScript. Part of [Job Preps](../README.md).
+JavaScript. One of four Job Preps apps, each in its own repo: DSA Prep, Cloud Prep, AI / LLM Prep and System Design Prep.
 
 ## Run it
 
