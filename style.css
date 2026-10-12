@@ -662,3 +662,9 @@ pre[id^="trres-"], pre[id^="trrun-"] { white-space: pre-wrap; }
 
 /* Exercise instruction above the code box */
 .ex-instr { margin: 10px 0 6px; font-size: .9rem; }
+
+/* Phones: long button labels wrap instead of pushing content past the card edge */
+@media (max-width: 640px) {
+  .hero > div { min-width: 0; max-width: 100%; }
+  .btn { white-space: normal; height: auto; min-height: 36px; padding-top: 7px; padding-bottom: 7px; max-width: 100%; text-align: center; }
+}
