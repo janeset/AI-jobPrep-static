@@ -308,7 +308,7 @@ function trRoadmap(T, st) {
 const slugOf = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 function resolveLesson(T, raw) {
   if (!raw) return null;
-  if (raw === "courses" || raw === "glossary" || topicById(T, raw)) return raw;
+  if (raw === "courses" || raw === "glossary" || (raw === "claude" && T.id === "ai") || topicById(T, raw)) return raw;
   const k = slugOf(raw);
   if (topicById(T, k)) return k;
   if ((T.aliases || {})[k]) return T.aliases[k];
@@ -327,9 +327,10 @@ function trLearn(T, st) {
     }).join("");
   }).join("") + `<div class="side-h" style="cursor:default">Reference</div>
     ${T.glossary && T.glossary.length ? `<button class="side-i ${sel === "glossary" ? "active" : ""}" data-trsel="${id}|glossary"><span class="lbl">Glossary</span><span class="muted lbl">${T.glossary.length}</span></button>` : ""}
-    ${T.videos.courses && T.videos.courses.length ? `<button class="side-i ${sel === "courses" ? "active" : ""}" data-trsel="${id}|courses"><span class="lbl">Full courses</span></button>` : ""}`;
+    ${T.videos.courses && T.videos.courses.length ? `<button class="side-i ${sel === "courses" ? "active" : ""}" data-trsel="${id}|courses"><span class="lbl">Full courses</span></button>` : ""}
+    ${id === "ai" ? `<button class="side-i ${sel === "claude" ? "active" : ""}" data-trsel="${id}|claude"><span class="lbl">Claude &amp; Anthropic</span></button>` : ""}`;
   const body = sel === "courses" && T.videos.courses ? `<h2>Full courses</h2><p class="muted">Long-form videos to watch in chunks alongside the plan.</p><div class="card">${vids(T.videos.courses)}</div>`
-    : sel === "glossary" && T.glossary ? trGlossary(T) : topicById(T, sel) ? trTopic(T, st, sel) : trMissing(T, sel);
+    : sel === "glossary" && T.glossary ? trGlossary(T) : sel === "claude" && id === "ai" ? claudeLearnPage() : topicById(T, sel) ? trTopic(T, st, sel) : trMissing(T, sel);
   return `<div class="ref-layout"><aside class="ref-side">${side}</aside><section class="ref-main">${body}</section></div>`;
 }
 
@@ -492,18 +493,19 @@ function trLabs(T, st) {
 // ---------------- certs ----------------
 function trCerts(T, st) {
   const id = T.id;
-  return pageHead("Certifications", "Pick one that matches your target employers. Exam codes and content change, so always confirm details on the official page before booking.") +
-    `<div class="track-grid">${T.certs.map((c) => {
+  return pageHead("Certifications", "Exam content and rules change, so always confirm details on the official page before booking. Each entry shows when it was last checked.") +
+    (T.certs.some((c) => c.provider === "Anthropic") ? claudeEligibility() : "") +
+    `<div class="track-grid" style="margin-top:var(--gap)">${T.certs.map((c) => {
       const s = st.certs[c.id] || {};
       return `<div class="card cert"><div class="section-head"><span class="badge accent">${esc(c.provider)} · ${esc(c.level)}</span><b class="cert-code">${esc(c.code)}</b></div>
-        <h3 style="margin-top:6px">${esc(c.name)}</h3><p class="muted">${esc(c.why)}</p>
-        <div class="label" style="margin-top:10px">Covered in Learn</div><div>${c.topics.map((tid) => `<button class="tag tag-btn" ${goLearn(id, tid)}>${esc(topicById(T, tid).title)}</button>`).join("")}</div>
+        <h3 style="margin-top:6px">${esc(c.name)}</h3><p class="muted">${esc(c.why)}</p>${c.verified ? `<p style="margin:0">${verifiedTag(c.verified)}</p>` : ""}
+        <div class="label" style="margin-top:10px">Related lessons</div><div>${c.topics.map((tid) => `<button class="tag tag-btn" ${goLearn(id, tid)}>${esc(topicById(T, tid).title)}</button>`).join("")}</div>
         <div class="row" style="margin-top:12px"><select data-trcert="${id}|${c.id}">${CERT_STATUSES.map((v) => `<option ${v === (s.status || "Not planned") ? "selected" : ""}>${v}</option>`).join("")}</select>
           <input type="date" data-trcertdate="${id}|${c.id}" value="${esc(s.date || "")}" title="Exam date"></div>
         <div class="row" style="margin-top:12px">${T.quiz.some((q) => q.tags.includes(c.tag)) ? `<button class="btn small primary" data-tqtag="${id}|${c.tag}">Practice questions</button>` : ""}
           <a class="btn small ghost" href="${c.link}" target="_blank" rel="noopener">Official page &nearr;</a></div></div>`;
     }).join("")}</div>
-    <div class="card"><h3>Full certification courses</h3>${vids(T.videos.courses)}</div>`;
+    ${T.id === "ai" ? claudeCoursesCard() + openAICard() : ""}`;
 }
 
 // ---------------- running exercises and examples ----------------

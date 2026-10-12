@@ -397,11 +397,11 @@ dialog textarea { font-family: var(--font); background: var(--surface); color: v
 .t-dsa { --tc: var(--accent); }
 .t-cloud { --tc: #0ea5e9; }
 .t-ai { --tc: #a855f7; }
-.t-aws { --tc: #f59e0b; }
+.t-claude { --tc: #d97757; }
 .t-roles { --tc: #10b981; }
-.hero.t-aws .ring .prog { stroke: var(--tc); }
-.hero.t-aws .eyebrow { color: var(--tc); }
-.hero.t-aws::after { background: radial-gradient(closest-side, color-mix(in srgb, var(--tc) 16%, transparent), transparent); }
+.hero.t-claude .ring .prog { stroke: var(--tc); }
+.hero.t-claude .eyebrow { color: var(--tc); }
+.hero.t-claude::after { background: radial-gradient(closest-side, color-mix(in srgb, var(--tc) 16%, transparent), transparent); }
 .dom-row { margin: 10px 0 14px; font-size: .9rem; }
 .dom-row .bar { margin-top: 6px; }
 .bar.bad > i { background: var(--bad); }
@@ -414,7 +414,7 @@ dialog textarea { font-family: var(--font); background: var(--surface); color: v
 .ax-map button.flag { box-shadow: inset 0 -3px 0 var(--warn); }
 .ax-map button.cur { outline: 2px solid var(--accent); outline-offset: 1px; color: var(--text); }
 .timer.H { color: var(--bad); }
-[data-theme="contrast"] .t-cloud, [data-theme="contrast"] .t-ai, [data-theme="contrast"] .t-aws, [data-theme="contrast"] .t-roles { --tc: var(--accent); }
+[data-theme="contrast"] .t-cloud, [data-theme="contrast"] .t-ai, [data-theme="contrast"] .t-claude, [data-theme="contrast"] .t-roles { --tc: var(--accent); }
 .nav-sep { width: 1px; height: 20px; background: var(--line-strong); margin: 0 6px; flex-shrink: 0; align-self: center; }
 .subnav { border-top: 1px solid var(--line); }
 .subnav-inner { max-width: 1180px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 18px; overflow-x: auto; scrollbar-width: none; }
@@ -643,3 +643,13 @@ pre[id^="trres-"], pre[id^="trrun-"] { white-space: pre-wrap; }
 .ref-main > .row.between .btn { white-space: normal; text-align: left; height: auto; min-height: 36px; }
 .lab-step code, .callout code, .ex-help code { overflow-wrap: anywhere; }
 .lesson-body table { display: block; max-width: 100%; overflow-x: auto; }
+
+/* Claude & Anthropic: "last verified" stamps, the ordered course list, notes */
+.verified { font-size: .76rem; color: var(--muted); white-space: nowrap; }
+.course-list { margin: 0 0 12px; padding-left: 22px; }
+.course-list li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.course-list li:last-child { border-bottom: 0; }
+.course-list a { color: var(--text); text-decoration: none; }
+.course-list a:hover b { text-decoration: underline; }
+.eligibility { margin-bottom: 0; }
+.zero-note { margin: 0 0 10px; }

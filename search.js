@@ -5,7 +5,7 @@
 
 const SEARCH_TYPES = [
   // [type, label, weight]: weight breaks ties between equally good matches
-  ["lesson", "Lessons", 6], ["question", "Interview questions", 4], ["lab", "Labs & projects", 4], ["skill", "Role skills", 4], ["posting", "Postings", 4],
+  ["lesson", "Lessons", 6], ["claude", "Claude & Anthropic", 5], ["question", "Interview questions", 4], ["lab", "Labs & projects", 4], ["skill", "Role skills", 4], ["posting", "Postings", 4],
   ["story", "Your stories", 3], ["video", "IBM videos", 1],
 ];
 const stripHtml = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&[#\w]+;/g, " ").replace(/\s+/g, " ").trim();
@@ -34,6 +34,11 @@ function buildSearchIndex() {
     }));
     T.labs.forEach((l) => add("lab", l.title, `${T.name} · ${T.labsName}`, (l.goal || "") + " " + (l.stack || ""), () => { views._trlab = l.id; go(id + ":labs"); revealEl("#lab-" + l.id); }));
   });
+
+  // Claude & Anthropic: official courses and certifications, and the OpenAI Academy entry
+  CLAUDE.courses.forEach((c, i) => add("claude", c.title, `Claude & Anthropic · Course ${i + 1}`, c.desc, () => { go("claude"); revealEl("#course-" + c.id); }));
+  CLAUDE_CERTS.forEach((c) => add("claude", c.name, "Claude & Anthropic · Certification", c.why + " " + CLAUDE.eligibility, () => go("ai:certs")));
+  add("claude", "OpenAI Academy", "OpenAI · Courses", OPENAI_LEARN.tracks.map((t) => t.join(" ")).join(" ") + " certification not yet verified", () => { go("claude"); revealEl("#openai-learn"); });
 
   // Roles: skills and postings
   SKILLS.forEach((s) => add("skill", s.name, `Role skill · ${s.area}`, (SKILL_KEYWORDS[s.id] || []).join(" "), () => { views._rlf = { area: s.area, level: "" }; go("roles:skills"); revealEl(`[data-rlconf="${s.id}"]`); }));

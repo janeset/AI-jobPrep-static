@@ -121,6 +121,7 @@ const MOCK_TIPS = [
 // ---------- views ----------
 const views = {
   home() { return homeView(); },
+  claude() { return claudeView(); },
 
   companies() {
     const tierName = (id) => (TIERS.find((t) => t.id === +id) || { name: "" }).name;

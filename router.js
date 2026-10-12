@@ -5,7 +5,7 @@
 // selection as before and never touch the URL themselves.
 // Loaded before app.js; it only uses app.js globals (tab, S, views, render...) at call time.
 
-const SIMPLE_TABS = ["home", "companies", "settings"];
+const SIMPLE_TABS = ["home", "claude", "companies", "settings"];
 const SEL_TRACKS = ["ai", "roles"]; // tracks whose Learn page has a selected topic
 
 // The address for the current state, without the leading "#/".
