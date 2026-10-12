@@ -11,8 +11,11 @@ const LEVEL_VALUE = { learning: 0.5, confident: 1 };
 const roleById = (id) => ROLE_DEFS.find((r) => r.id === id);
 const skillById = (id) => SKILLS.find((s) => s.id === id);
 // Built-in postings plus the ones added in the app (saved in this browser). Postings for a role
-// this version doesn't cover (e.g. imported from the combined Prep Hub) are left out.
-const allPostings = () => POSTINGS.concat(S.myPostings || []).filter((p) => roleById(p.role));
+// this version doesn't cover (e.g. imported from the combined Prep Hub, or the removed AI Cloud Engineer
+// role) are left out, and skills that no longer exist are dropped from the rest.
+const knownSkills = (ids) => (ids || []).filter((id) => skillById(id));
+const allPostings = () => POSTINGS.concat(S.myPostings || []).filter((p) => roleById(p.role))
+  .map((p) => (p.required.every(skillById) && p.preferred.every(skillById) ? p : Object.assign({}, p, { required: knownSkills(p.required), preferred: knownSkills(p.preferred) })));
 const roleName = (id) => (id === "all" ? "All roles" : roleById(id).name);
 
 function rlState() {
@@ -246,7 +249,7 @@ function rolesHomeCard() {
       <div class="bar" style="width:70px;margin:0"><i style="width:${Math.round(pct * 100)}%"></i></div></div>`;
   }).join("");
   return `<div class="card track-card t-roles">
-    <div class="tc-head"><span class="tc-icon">${TRACK_ICON.roles}</span><div><h3>Roles</h3><p class="muted">Prep shaped by real postings for AI and AI Cloud engineering</p></div></div>
+    <div class="tc-head"><span class="tc-icon">${TRACK_ICON.roles}</span><div><h3>Roles</h3><p class="muted">Prep shaped by real postings for AI engineering</p></div></div>
     <div class="list">${rows}</div>
     <div class="row"><button class="btn primary" data-track-go="roles">Continue &rarr;</button></div></div>`;
 }

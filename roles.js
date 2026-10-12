@@ -1,4 +1,4 @@
-// Roles: prep driven by real job postings for two role families. This file holds the parts that
+// Roles: prep driven by real job postings for AI engineering roles. This file holds the parts that
 // grow as postings are added: the role definitions, the shared skill catalog and the postings.
 // Lessons, questions, quiz and projects live in roles-learn.js; the pages in roleview.js.
 //
@@ -11,16 +11,11 @@ const ROLE_DEFS = [
   {
     id: "ai", name: "AI Engineer", short: "AI",
     tagline: "Build production AI systems: RAG, agents, evals and model integration inside real products",
-    baseline: ["llm-apis", "prompting-context", "structured", "rag", "agents", "evals", "ai-safety", "llmops", "cloud-ai", "finetune", "backend", "testing", "ai-coding"],
-  },
-  {
-    id: "aicloud", name: "AI Cloud Engineer", short: "AI Cloud",
-    tagline: "Platform and infrastructure for AI: model serving, GPUs, gateways and secure cloud AI services",
-    baseline: ["cloud-ai", "llm-apis", "rag", "selfhost", "model-gateway", "gpu", "kubernetes", "iac", "cicd", "observability", "identity", "secrets", "llmops", "evals"],
+    baseline: ["llm-apis", "prompting-context", "structured", "rag", "agents", "evals", "ai-safety", "llmops", "finetune", "backend", "testing", "ai-coding"],
   },
 ];
 
-const SKILL_AREAS = ["AI systems", "Data & integration", "Cloud & platform", "Engineering practice"];
+const SKILL_AREAS = ["AI systems", "Data & integration", "Platform & delivery", "Engineering practice"];
 
 const SKILLS = [
   // AI systems
@@ -38,7 +33,6 @@ const SKILLS = [
   { id: "model-gateway", area: "AI systems", name: "Model gateways, routing & capacity testing", learn: [["roles", "selfhost"], ["ai", "llmops"]] },
   { id: "llmops", area: "AI systems", name: "LLMOps: cost, latency & caching", learn: [["ai", "llmops"]] },
   { id: "finetune", area: "AI systems", name: "Fine-tuning & model customization", learn: [["ai", "customization"]] },
-  { id: "cloud-ai", area: "AI systems", name: "Managed cloud AI (Azure OpenAI / Foundry, Bedrock)", learn: [["ai", "cloudai"], ["roles", "gpucloud"]] },
   // Data & integration
   { id: "sql", area: "Data & integration", name: "SQL, schema design & safe migrations", learn: [["roles", "pgvector"], ["cloud", "databases"]] },
   { id: "pgvector", area: "Data & integration", name: "PostgreSQL + pgvector", learn: [["roles", "pgvector"]] },
@@ -46,25 +40,24 @@ const SKILLS = [
   { id: "data-pipelines", area: "Data & integration", name: "Data pipelines, sync & indexing", learn: [["roles", "integration"], ["cloud", "data"]] },
   { id: "mfg", area: "Data & integration", name: "Manufacturing systems: CAD/PDM, PLM, ERP, MES", learn: [["roles", "mfgdata"]] },
   { id: "openusd", area: "Data & integration", name: "OpenUSD, Omniverse & digital twins", learn: [["roles", "mfgdata"]] },
-  // Cloud & platform
-  { id: "cloud-fundamentals", area: "Cloud & platform", name: "Cloud fundamentals (Azure & AWS)", learn: [["cloud", "fundamentals"]] },
-  { id: "identity", area: "Cloud & platform", name: "Identity, auth & access control (Entra ID, OAuth)", learn: [["cloud", "iam"]] },
-  { id: "secrets", area: "Cloud & platform", name: "Secrets & key management", learn: [["cloud", "security"]] },
-  { id: "networking", area: "Cloud & platform", name: "Networking: VNet / VPC, DNS, private endpoints", learn: [["cloud", "networking"]] },
-  { id: "containers", area: "Cloud & platform", name: "Containers & registries", learn: [["cloud", "containers"]] },
-  { id: "kubernetes", area: "Cloud & platform", name: "Kubernetes", learn: [["cloud", "kubernetes"]] },
-  { id: "openshift", area: "Cloud & platform", name: "Azure Red Hat OpenShift", learn: [["roles", "openshift"]] },
-  { id: "serverless", area: "Cloud & platform", name: "Serverless & managed app platforms", learn: [["cloud", "serverless"]] },
-  { id: "iac", area: "Cloud & platform", name: "Infrastructure as code (Terraform / Bicep)", learn: [["cloud", "devops"]] },
-  { id: "cicd", area: "Cloud & platform", name: "CI/CD (Azure DevOps / GitHub Actions)", learn: [["roles", "azdevops"], ["cloud", "devops"]] },
-  { id: "observability", area: "Cloud & platform", name: "Observability: logs, metrics, traces, alerts", learn: [["roles", "aiobs"], ["cloud", "operations"]] },
-  { id: "gpu", area: "Cloud & platform", name: "GPU workloads & AI capacity planning", learn: [["roles", "gpucloud"], ["roles", "selfhost"]] },
-  { id: "architecture", area: "Cloud & platform", name: "Architecture, reliability & disaster recovery", learn: [["cloud", "architecture"]] },
-  { id: "governance", area: "Cloud & platform", name: "Governance, cost & landing zones", learn: [["cloud", "governance"], ["cloud", "operations"]] },
+  // Platform & delivery
+  { id: "identity", area: "Platform & delivery", name: "Identity, auth & access control (OAuth, OIDC, SSO)", learn: [["cloud", "iam"]] },
+  { id: "secrets", area: "Platform & delivery", name: "Secrets & key management", learn: [["cloud", "security"]] },
+  { id: "networking", area: "Platform & delivery", name: "Networking: VNet / VPC, DNS, private endpoints", learn: [["cloud", "networking"]] },
+  { id: "containers", area: "Platform & delivery", name: "Containers & registries", learn: [["cloud", "containers"]] },
+  { id: "kubernetes", area: "Platform & delivery", name: "Kubernetes", learn: [["cloud", "kubernetes"]] },
+  { id: "openshift", area: "Platform & delivery", name: "Red Hat OpenShift", learn: [["cloud", "kubernetes"]] },
+  { id: "serverless", area: "Platform & delivery", name: "Serverless & managed app platforms", learn: [["cloud", "serverless"]] },
+  { id: "iac", area: "Platform & delivery", name: "Infrastructure as code (Terraform)", learn: [["cloud", "devops"]] },
+  { id: "cicd", area: "Platform & delivery", name: "CI/CD (GitHub Actions, GitLab CI)", learn: [["roles", "cicd"], ["cloud", "devops"]] },
+  { id: "observability", area: "Platform & delivery", name: "Observability: logs, metrics, traces, alerts", learn: [["roles", "aiobs"], ["cloud", "operations"]] },
+  { id: "gpu", area: "Platform & delivery", name: "GPU workloads & AI capacity planning", learn: [["roles", "selfhost"]] },
+  { id: "architecture", area: "Platform & delivery", name: "Architecture, reliability & disaster recovery", learn: [["cloud", "architecture"]] },
+  { id: "governance", area: "Platform & delivery", name: "Governance, cost & landing zones", learn: [["cloud", "governance"], ["cloud", "operations"]] },
   // Engineering practice
   { id: "ai-frontend", area: "Engineering practice", name: "React + TypeScript frontends for AI", learn: [["roles", "aifrontend"]] },
   { id: "backend", area: "Engineering practice", name: "Backend APIs: Python + .NET/C# or Node.js", learn: [["roles", "aifrontend"], ["roles", "integration"]] },
-  { id: "testing", area: "Engineering practice", name: "Automated testing: unit, integration, load, AI evals", learn: [["roles", "azdevops"], ["ai", "evals"]] },
+  { id: "testing", area: "Engineering practice", name: "Automated testing: unit, integration, load, AI evals", learn: [["roles", "cicd"], ["ai", "evals"]] },
   { id: "ai-coding", area: "Engineering practice", name: "AI coding assistants in daily work", learn: [["roles", "aicoding"]] },
   { id: "collaboration", area: "Engineering practice", name: "Design reviews, docs & evidence-based decisions", learn: [["roles", "behavioral"]] },
 ];
@@ -87,27 +80,25 @@ const SKILL_KEYWORDS = {
   "model-gateway": ["model gateway", "ai gateway", "litellm", "load testing", "capacity testing", "model routing", "rate limiting"],
   "llmops": ["llmops", "mlops", "latency", "token cost", "caching", "model monitoring", "mlflow", "weights & biases"],
   "finetune": ["fine-tuning", "fine tuning", "fine-tune", "lora", "peft", "rlhf", "model training", "pytorch", "tensorflow"],
-  "cloud-ai": ["azure openai", "ai foundry", "azure ai", "bedrock", "sagemaker", "vertex ai", "cognitive services", "azure machine learning"],
   "sql": ["sql", "postgresql", "postgres", "mysql", "sql server", "schema design", "database migrations", "relational database"],
   "pgvector": ["pgvector"],
   "integration": ["rest api", "restful", "soap", "graphql", "grpc", "webhooks", "event-driven", "kafka", "service bus", "event hub", "rabbitmq", "integration", "apis"],
   "data-pipelines": ["data pipeline", "etl", "elt", "data ingestion", "airflow", "databricks", "spark", "data factory", "dbt", "snowflake", "indexing"],
   "mfg": ["manufacturing", "cad", "pdm", "plm", "erp", "mes", "bom", "solidworks", "sap"],
   "openusd": ["openusd", "omniverse", "digital twin"],
-  "cloud-fundamentals": ["cloud", "azure", "aws", "gcp", "google cloud", "amazon web services"],
-  "identity": ["entra", "azure ad", "active directory", "oauth", "oidc", "openid", "saml", "sso", "rbac", "iam", "authentication", "authorization"],
+  "identity": ["entra", "active directory", "oauth", "oidc", "openid", "saml", "sso", "rbac", "iam", "authentication", "authorization"],
   "secrets": ["key vault", "secrets manager", "secrets management", "kms", "hashicorp vault", "encryption"],
   "networking": ["vnet", "vpc", "networking", "dns", "private endpoint", "private link", "load balancer", "firewall", "subnets", "tcp/ip"],
   "containers": ["docker", "container", "containers", "containerization", "acr", "ecr", "container registry"],
   "kubernetes": ["kubernetes", "k8s", "aks", "eks", "gke", "helm"],
   "openshift": ["openshift", "aro", "red hat"],
-  "serverless": ["serverless", "azure functions", "lambda", "app service", "container apps", "fargate", "cloud run"],
+  "serverless": ["serverless", "lambda", "app service", "container apps", "fargate", "cloud run"],
   "iac": ["terraform", "bicep", "arm templates", "cloudformation", "pulumi", "infrastructure as code", "iac", "ansible"],
-  "cicd": ["ci/cd", "cicd", "continuous integration", "continuous delivery", "azure devops", "github actions", "gitlab", "jenkins", "pipelines", "devops"],
-  "observability": ["observability", "monitoring", "logging", "tracing", "opentelemetry", "prometheus", "grafana", "datadog", "application insights", "azure monitor", "cloudwatch", "splunk"],
+  "cicd": ["ci/cd", "cicd", "continuous integration", "continuous delivery", "github actions", "gitlab", "jenkins", "pipelines", "devops"],
+  "observability": ["observability", "monitoring", "logging", "tracing", "opentelemetry", "prometheus", "grafana", "datadog", "splunk"],
   "gpu": ["gpu", "gpus", "cuda", "nvidia", "a100", "h100", "capacity planning", "inference infrastructure"],
   "architecture": ["architecture", "high availability", "disaster recovery", "scalability", "reliability", "well-architected", "distributed systems", "system design"],
-  "governance": ["governance", "landing zone", "finops", "cost optimization", "azure policy", "compliance", "soc 2", "iso 27001"],
+  "governance": ["governance", "landing zone", "finops", "cost optimization", "compliance", "soc 2", "iso 27001"],
   "ai-frontend": ["react", "typescript", "next.js", "nextjs", "frontend", "front-end", "angular", "vue"],
   "backend": ["python", "c#", ".net", "node.js", "nodejs", "fastapi", "django", "flask", "java", "spring", "golang", "backend", "back-end", "microservices"],
   "testing": ["testing", "unit tests", "integration tests", "pytest", "test automation", "tdd", "load testing", "qa"],
@@ -123,7 +114,7 @@ const POSTINGS = [
     added: "2026-10-06", link: "https://jobs.dayforcehcm.com/en-CA/eclipse/CANDIDATEPORTAL",
     summary: "Custom automated-manufacturing builder running a multi-year digital transformation. About 70-80% of the role is AI systems (agents, retrieval, evaluation, model integration); the rest is full-stack, APIs, data pipelines and enterprise integration. Works from the Principal AI Architect's direction and owns implementation and delivery.",
     required: ["llm-apis", "rag", "agents", "agent-prod", "structured", "prompting-context", "evals", "ai-frontend", "backend", "identity", "sql", "integration", "data-pipelines", "testing", "cicd", "containers", "observability", "ai-coding", "collaboration"],
-    preferred: ["selfhost", "model-gateway", "gpu", "pgvector", "hybrid-rerank", "perm-rag", "openshift", "kubernetes", "secrets", "iac", "mfg", "openusd", "ai-safety", "cloud-ai"],
+    preferred: ["selfhost", "model-gateway", "gpu", "pgvector", "hybrid-rerank", "perm-rag", "openshift", "kubernetes", "secrets", "iac", "mfg", "openusd", "ai-safety"],
     prep: [
       "Lead with a production AI story: what you built, how you evaluated it, and what changed when real users hit it.",
       "Be ready to sketch an engineering knowledge assistant: permission-aware RAG over PDM/PLM documents, plus agent actions behind human approval.",

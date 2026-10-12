@@ -103,7 +103,7 @@ const TIERS = [
   },
   {
     id: 3, name: "Banks, insurers & other local employers", bar: "Responsible AI",
-    emphasis: "Integrating Azure OpenAI or Copilot with existing systems, data privacy and responsible-AI controls, and explaining AI trade-offs clearly to non-technical stakeholders.",
+    emphasis: "Integrating managed LLM services or Copilot with existing systems, data privacy and responsible-AI controls, and explaining AI trade-offs clearly to non-technical stakeholders.",
     names: ["RBC", "TD", "Scotiabank", "BMO", "CIBC", "Manulife", "Sun Life", "Canada Life", "Intact", "Equitable Bank", "Ontario Public Service", "Eclipse Automation (Cambridge)"],
   },
 ];

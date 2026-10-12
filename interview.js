@@ -44,7 +44,7 @@ const BEHAVIORAL_QS = [
   { id: "b25", q: "Tell me about a time you changed your mind after seeing new evidence.", themes: ["learning", "conflict"], tip: "What you believed, what changed it, and how you updated the plan and told others." },
 ];
 
-const IV_ROLES = [["ai", "AI Engineer"], ["aicloud", "AI Cloud Engineer"]];
+const IV_ROLES = [["ai", "AI Engineer"]];
 const IV_FORMATS = {
   standard: { name: "Technical loop · 45 min", rounds: [["tech", 10], ["tech", 10], ["tech", 10], ["beh", 15]] },
   short: { name: "Short · 30 min", rounds: [["tech", 10], ["tech", 10], ["beh", 10]] },

@@ -1,4 +1,4 @@
-// Roles lessons: only the gaps that the AI and Cloud tracks don't already cover, written from
+// Roles lessons: only the gaps that the AI track doesn't already cover, written from
 // what the collected postings ask for. Skills link to these and to existing track lessons.
 // body HTML is trusted (written here). Exercise and code-sample text avoids backslashes and
 // dollar-brace sequences because it lives in template literals.
@@ -9,16 +9,15 @@ const ROLES = {
   labsName: "Projects",
   tabs: [["overview", "Overview"], ["skills", "Skills"], ["postings", "Postings"], ["learn", "Learn"], ["questions", "Questions"], ["quiz", "Quiz"], ["labs", "Projects"]],
   tagLabel: "All roles",
-  tagNames: { ai: "AI Engineer", cloud: "Cloud Engineer", aicloud: "AI Cloud Engineer" },
+  tagNames: { ai: "AI Engineer" },
   weeks: [], certs: [],
+  aliases: { azdevops: "cicd" },
   channel: IBM_CHANNEL,
   // IBM Technology explainers (ids and titles confirmed via YouTube oEmbed).
   videos: {
-    selfhost: [IBM("McLdlg5Gc9s", "What is vLLM? Efficient AI Inference for Large Language Models"), IBM("5RIOQuHOihY", "What is Ollama? Running Local LLMs Made Simple"), IBM("0ujh7hfutq0", "Llama.cpp vs vLLM: Which Local LLM Engine Actually Scales?"), IBM("o0gkdZBtwEg", "How KV Cache Speeds Up LLMs for Faster AI Models on GPUs")],
+    selfhost: [IBM("McLdlg5Gc9s", "What is vLLM? Efficient AI Inference for Large Language Models"), IBM("5RIOQuHOihY", "What is Ollama? Running Local LLMs Made Simple"), IBM("0ujh7hfutq0", "Llama.cpp vs vLLM: Which Local LLM Engine Actually Scales?"), IBM("qZBibWYcKH4", "How AI Models Scale Beyond a Single GPU Across LLM Workloads"), IBM("LfdK-v0SbGI", "GPUs: Explained"), IBM("XtT5i0ZeHHE", "AI Inference: The Secret to AI's Superpowers"), IBM("CNKGgOphAPM", "LLM‑D Explained: Building Next‑Gen AI with LLMs, RAG & Kubernetes"), IBM("o0gkdZBtwEg", "How KV Cache Speeds Up LLMs for Faster AI Models on GPUs")],
     entagents: [IBM("BacJ6sEhqMo", "The Four Types of Memory Every AI Agent Needs"), IBM("9iS-YYLIXiw", "What is Human In The Loop with AI? How HITL Shapes AI Systems"), IBM("cmEJ-5zYKHA", "Why AI Agents Need A Human in the Loop Now"), IBM("UMYtqHptYvA", "Guide to Architect Secure AI Agents: Best Practices for Safety")],
     permrag: [IBM("r0Dciuq0knU", "Top 3 RAG Retrieval Strategies: Sparse, Dense, & Hybrid Explained"), IBM("y7sXDpffzQQ", "What is a Knowledge Graph?"), IBM("Za7aG-ooGLQ", "GraphRAG Explained: AI Retrieval with Knowledge Graphs & Cypher")],
-    gpucloud: [IBM("qZBibWYcKH4", "How AI Models Scale Beyond a Single GPU Across LLM Workloads"), IBM("LfdK-v0SbGI", "GPUs: Explained"), IBM("XtT5i0ZeHHE", "AI Inference: The Secret to AI's Superpowers")],
-    openshift: [IBM("KTN_QBuDplo", "What is OpenShift?"), IBM("ZsOR8RkAOwI", "Kubernetes vs. OpenShift"), IBM("CNKGgOphAPM", "LLM‑D Explained: Building Next‑Gen AI with LLMs, RAG & Kubernetes")],
     aiobs: [IBM("hLvwoow3XTk", "OpenTelemetry: Simplifying Hybrid Cloud Monitoring"), IBM("jWDCnJKouhw", "Are Your AI Agents Flying Blind? The Truth About AgentOps"), IBM("iZX6d0OdZys", "What Is MLflow? Tracing AI Agents & LLM Workflows")],
     mfgdata: [IBM("2hnoGo27uf8", "What is a Digital Twin?")],
     aicoding: [IBM("mViFYTwWvcM", "Spec-Driven Development: AI Assisted Coding Explained"), IBM("4wMRXmLpdA8", "AI in the SDLC: Rethinking AI Coding Tools & AI Agents"), IBM("c57vAe-mMLo", "How AI Is Changing Code Reviews & Software Development")],
@@ -26,7 +25,7 @@ const ROLES = {
   groups: [
     ["Building AI systems", ["selfhost", "entagents", "permrag", "aifrontend"]],
     ["Data & integration", ["pgvector", "integration", "mfgdata"]],
-    ["Cloud platform & delivery", ["openshift", "gpucloud", "azdevops", "aiobs"]],
+    ["Delivery & operations", ["cicd", "aiobs"]],
     ["Working style", ["aicoding", "behavioral"]],
   ],
 
@@ -44,7 +43,7 @@ const ROLES = {
         <h3>GPU memory, roughly</h3>
         <p><b>Weights</b> = parameters x bytes per parameter (8B params at 16-bit is about 16 GB). <b>KV cache</b> = 2 (keys and values) x layers x hidden size x tokens x batch x bytes, and it grows with context length and concurrency. Models with grouped-query attention store fewer KV heads, so real numbers are often smaller; the formula gives a safe upper bound for interview math.</p>
         <h3>Model gateways</h3>
-        <p>A <b>gateway</b> sits between apps and every model (local and cloud): one API, authentication, per-team quotas and budgets, routing and fallbacks (local first, cloud if overloaded), caching, and central logging. Examples: <b>LiteLLM</b> proxy, <b>Azure API Management</b> AI gateway policies (token limits, load balancing across deployments), or a thin service of your own.</p>
+        <p>A <b>gateway</b> sits between apps and every model (local and cloud): one API, authentication, per-team quotas and budgets, routing and fallbacks (local first, cloud if overloaded), caching, and central logging. Examples: <b>LiteLLM</b> proxy, an API-management product's AI gateway policies (token limits, load balancing across deployments), or a thin service of your own.</p>
         <h3>Capacity and performance testing</h3>
         <ul>
           <li>Measure <b>time to first token (TTFT)</b>, <b>output tokens per second</b>, <b>p50/p95 latency</b> and <b>error rate</b> while stepping up concurrency, with realistic prompt and output lengths.</li>
@@ -240,7 +239,7 @@ assert review_action({"tool": "get_bom", "args": {"part_number": "A-1", "sql": "
         <h3>Security trimming</h3>
         <ul>
           <li><b>Capture ACLs at ingest:</b> store who can read each document (users, groups, project membership) as metadata on every chunk.</li>
-          <li><b>Filter at query time</b> using the caller's identity (e.g. Entra ID groups from their token). <b>Pre-filtering</b> (filter inside the search) is safest; <b>post-filtering</b> top-k results can leave you with too few results, so over-fetch or use engines that filter during the index scan.</li>
+          <li><b>Filter at query time</b> using the caller's identity (e.g. the groups in their identity provider's token). <b>Pre-filtering</b> (filter inside the search) is safest; <b>post-filtering</b> top-k results can leave you with too few results, so over-fetch or use engines that filter during the index scan.</li>
           <li><b>Default deny:</b> a chunk with missing or unknown ACLs is not returned.</li>
           <li><b>Keep ACLs in sync:</b> permission changes and deletions in the source system must reach the index quickly. Stale ACLs are a security bug, not a freshness bug.</li>
           <li><b>Never rely on the prompt</b> ("don't reveal HR data") for access control. The model can only leak what you put in its context.</li></ul>
@@ -728,214 +727,72 @@ assert explode_bom(BOM, "BOLT") == {"BOLT": 1}, "a leaf part is its own result"`
       ],
     },
 
-    // ---------------- Cloud platform & delivery ----------------
+    // ---------------- Delivery & operations ----------------
     {
-      id: "openshift", title: "Azure Red Hat OpenShift (ARO)", yt: "Azure Red Hat OpenShift explained",
-      body: `<p><b>OpenShift</b> is Red Hat's Kubernetes distribution with batteries included. <b>Azure Red Hat OpenShift (ARO)</b> runs it as a managed service, jointly operated and supported by Microsoft and Red Hat. If you know Kubernetes (Cloud track), most of it carries over; these are the differences interviewers probe.</p>
-        <h3>OpenShift vs plain Kubernetes</h3>
-        <table><tr><th>Need</th><th>Kubernetes / AKS</th><th>OpenShift / ARO</th></tr>
-          <tr><td>Isolation unit</td><td>Namespace</td><td><b>Project</b> (a namespace with extra defaults and quotas)</td></tr>
-          <tr><td>Expose an app</td><td>Ingress / Gateway API</td><td><b>Route</b> (built-in router with TLS); Ingress also works</td></tr>
-          <tr><td>Pod security</td><td>Pod Security Standards</td><td><b>Security Context Constraints (SCCs)</b>; by default pods run as a <b>random non-root UID</b></td></tr>
-          <tr><td>CLI</td><td><code>kubectl</code></td><td><code>oc</code> (kubectl plus login, projects, routes, builds)</td></tr>
-          <tr><td>Builds and images</td><td>External CI plus a registry</td><td>Optional in-cluster BuildConfigs, ImageStreams and internal registry</td></tr>
-          <tr><td>Add-ons</td><td>Helm, AKS add-ons</td><td><b>Operators</b> from OperatorHub (GPU, service mesh, GitOps, OpenShift AI)</td></tr></table>
-        <h3>Things that trip people up</h3>
-        <ul>
-          <li><b>Random UID:</b> images that assume root or a fixed user fail. Make app directories group-owned by GID 0 and group-writable, listen on ports above 1024, and don't write outside them.</li>
-          <li><b>Pulling from ACR:</b> add an image pull secret (or use the cluster's configured registry credentials) for Azure Container Registry.</li>
-          <li><b>Secrets:</b> mount Key Vault secrets with the Secrets Store CSI driver instead of copying them into Kubernetes secrets by hand.</li>
-          <li><b>Identity:</b> configure Microsoft Entra ID as the cluster's OAuth identity provider and map Entra groups to OpenShift roles.</li>
-          <li><b>GPUs:</b> add a GPU machine pool, then the Node Feature Discovery and NVIDIA GPU Operators; workloads request <code>nvidia.com/gpu</code>. <b>Red Hat OpenShift AI</b> adds model serving (KServe with vLLM) on top.</li></ul>
-        <h3>Deploy, observe, roll back</h3>
-        <ul><li>Deployments with readiness and liveness probes, resource requests and limits, and HorizontalPodAutoscalers, the same as Kubernetes.</li>
-          <li><code>oc rollout status</code> and <code>oc rollout undo deployment/api</code> for quick rollback; GitOps (OpenShift GitOps, based on Argo CD) for declarative, auditable releases.</li>
-          <li>Built-in monitoring (Prometheus, Alertmanager) and logging operators; forward to Azure Monitor if that's the company standard.</li></ul>`,
-      code: [{ label: "OpenShift-friendly container image and a TLS Route", code: `# Dockerfile: runs under OpenShift's random non-root UID
-FROM python:3.12-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-RUN chgrp -R 0 /app && chmod -R g=u /app      # group 0 can write, whatever the UID
-USER 1001
-EXPOSE 8080
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
-
----
-# route.yaml: expose the service over HTTPS with the cluster router
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: knowledge-api
-spec:
-  to:
-    kind: Service
-    name: knowledge-api
-  port:
-    targetPort: 8080
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect` }],
-      cards: [
-        ["Your container works on AKS but crashes on OpenShift with permission denied. Likely cause?", "OpenShift runs it as a random non-root UID. Make writable paths group-owned by GID 0 with group write, avoid ports below 1024, and don't assume root."],
-        ["What is an OpenShift Route?", "OpenShift's object for exposing a Service through the built-in router, with options for TLS edge, passthrough or re-encrypt termination."],
-        ["Why might a company pick ARO over AKS?", "A Red Hat/OpenShift standard across on-prem and cloud, built-in developer and security tooling, OperatorHub, and a jointly supported managed service; AKS is lighter and cheaper if plain Kubernetes is enough."],
-        ["How do you run GPU workloads on ARO?", "Add GPU-capable worker nodes, install the Node Feature Discovery and NVIDIA GPU Operators, and request nvidia.com/gpu in the pod spec; OpenShift AI adds model serving."],
-      ],
-    },
-    {
-      id: "gpucloud", title: "GPU capacity & managed AI on Azure and AWS", yt: "Azure OpenAI provisioned throughput PTU explained",
-      body: `<p>AI cloud roles are judged on whether models stay <b>fast, available and affordable</b> as usage grows. That means understanding quotas, provisioned capacity, GPUs and scaling.</p>
-        <h3>Managed model capacity</h3>
-        <ul>
-          <li><b>Azure OpenAI / Foundry:</b> deployments have <b>tokens-per-minute (TPM) quotas</b> per region. <b>Standard</b> (pay per token, shared capacity) suits spiky traffic; <b>provisioned throughput (PTU)</b> reserves capacity for predictable latency at steady high volume. Global and data-zone deployment types trade data location for availability.</li>
-          <li><b>Amazon Bedrock:</b> on-demand per-token pricing with service quotas, <b>cross-region inference</b> to absorb bursts, and <b>provisioned throughput</b> for guaranteed capacity.</li>
-          <li>Handle <b>429s</b> gracefully: retry with backoff, spread load across deployments or regions through a gateway, and alert well before quota.</li>
-          <li><b>Data residency:</b> a Canadian employer may require Canada Central / ca-central-1 or a specific data zone; check model availability per region early.</li></ul>
-        <h3>Running your own GPUs</h3>
-        <ul>
-          <li><b>GPU node pools</b> on AKS / ARO or EKS, with taints so only GPU workloads land there. GPU nodes are expensive: scale to zero when idle where startup time allows.</li>
-          <li><b>Scale on the right signal:</b> queue depth, in-flight requests or tokens per second (KEDA is common), not CPU. Model load time makes scale-up slow, so keep warm replicas for latency-sensitive paths.</li>
-          <li><b>Spot / low-priority GPUs</b> for batch jobs like re-embedding a corpus; on-demand or reserved for online serving.</li>
-          <li><b>Right-size:</b> a quantized smaller model on one GPU often beats a large model across several on cost per useful answer. Prove it with evals.</li></ul>
-        <h3>Capacity planning</h3>
-        <p>Replicas needed = (requests per second x tokens per request) / (tokens per second one replica sustains at your latency target), then add headroom (often 20-30%) for spikes and failures, and never go below one (or two for availability).</p>
-        <h3>Network and security for AI services</h3>
-        <ul><li><b>Private endpoints</b> so traffic to Azure OpenAI, AI Search or storage stays on the private network; disable public access.</li>
-          <li><b>Managed identity</b> instead of API keys; RBAC roles per app.</li>
-          <li><b>Content filtering</b>, abuse monitoring and logging settings reviewed with security and privacy teams.</li></ul>`,
-      exercises: [{
-        key: "tpm", prompt: "Managed models have tokens-per-minute (TPM) quotas. Write fits_quota(rps, tokens_per_request, tpm_quota) that returns True if rps requests per second of tokens_per_request tokens each fit within the quota.",
-        example: "fits_quota(5, 1000, 300000) returns True (5 × 1000 × 60 = 300,000)\nfits_quota(6, 1000, 300000) returns False",
-        hint: "Tokens per minute = `rps * tokens_per_request * 60`. Compare with `<=`.",
-        starter: `def fits_quota(rps, tokens_per_request, tpm_quota):
-    pass
-`,
-        tests: `assert fits_quota(5, 1000, 300000) is True, "exactly at the quota still fits"
-assert fits_quota(6, 1000, 300000) is False
-assert fits_quota(0.5, 800, 30000) is True`,
-        solution: `def fits_quota(rps, tokens_per_request, tpm_quota):
-    return rps * tokens_per_request * 60 <= tpm_quota`,
-      }, {
-        key: "assign", prompt: "Spread load across deployments. Write assign_traffic(rps, capacities): capacities maps deployment names to the requests per second each can take, in priority order. Fill each in order up to its capacity until all traffic is placed; return a dict of name to assigned rps (including 0 for unused ones). Raise ValueError if total capacity is too small.",
-        example: `assign_traffic(15, {"canada": 10, "us-east": 10}) returns {"canada": 10, "us-east": 5}`,
-        hint: "Keep `left = rps`. For each name and cap, assign `min(cap, left)` and subtract it from left. After the loop, raise if left is still above 0.",
-        starter: `def assign_traffic(rps, capacities):
-    pass
-`,
-        tests: `assert assign_traffic(15, {"canada": 10, "us-east": 10}) == {"canada": 10, "us-east": 5}
-assert assign_traffic(4, {"canada": 10, "us-east": 10}) == {"canada": 4, "us-east": 0}
-try:
-    assign_traffic(30, {"canada": 10, "us-east": 10}); raise SystemExit("expected ValueError")
-except ValueError:
-    pass`,
-        solution: `def assign_traffic(rps, capacities):
-    left = rps
-    plan = {}
-    for name, cap in capacities.items():
-        plan[name] = min(cap, left)
-        left -= plan[name]
-    if left > 0:
-        raise ValueError("not enough capacity for " + str(rps) + " rps")
-    return plan`,
-      }, {
-        key: "replicas", prompt: "Implement replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroom=0.3): demand is rps × tokens_per_request tokens per second; each replica can safely serve tokens_per_sec_per_replica × (1 - headroom). Return the number of replicas (rounded up), at least 1.",
-        example: "replicas_needed(5, 500, 1000) returns 4\n(demand 2,500 tokens/s; each replica safely serves 700)",
-        hint: "`demand / safe_capacity` gives a fraction of replicas; `math.ceil` rounds it up, and `max(1, ...)` keeps at least one.",
-        starter: `import math
-
-def replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroom=0.3):
-    pass
-`,
-        tests: `assert replicas_needed(5, 500, 1000) == 4
-assert replicas_needed(5, 500, 1000, headroom=0) == 3
-assert replicas_needed(0.1, 200, 2000) == 1, "always keep at least one replica"
-assert replicas_needed(20, 800, 2500, headroom=0.2) == 8`,
-        solution: `import math
-
-def replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroom=0.3):
-    demand = rps * tokens_per_request
-    safe = tokens_per_sec_per_replica * (1 - headroom)
-    return max(1, math.ceil(demand / safe))`,
-      }],
-      cards: [
-        ["Standard (pay-as-you-go) vs provisioned throughput?", "Standard is cheap and flexible for spiky or low traffic but shares capacity and can throttle; provisioned reserves capacity for predictable latency at steady high volume, at a fixed cost whether used or not."],
-        ["Why not autoscale GPU inference on CPU usage?", "The bottleneck is the GPU and request queue. Scale on queue depth, concurrent requests or token throughput, and account for slow model load times."],
-        ["Users get 429 errors from Azure OpenAI at peak. Options?", "Retry with backoff, spread traffic across deployments or regions via a gateway, cache repeated answers, raise quota or move steady load to provisioned throughput, and alert before limits."],
-      ],
-    },
-    {
-      id: "azdevops", title: "CI/CD with Azure DevOps & GitHub Actions", yt: "Azure DevOps YAML pipelines tutorial",
-      body: `<p>Postings ask for Git-based workflows, pull requests, automated quality checks and CI/CD through <b>Azure DevOps</b> or <b>GitHub Actions</b>. The concepts are the same; the vocabulary differs.</p>
-        <table><tr><th>Concept</th><th>Azure DevOps</th><th>GitHub Actions</th></tr>
-          <tr><td>Pipeline definition</td><td><code>azure-pipelines.yml</code>: stages, jobs, steps, templates</td><td><code>.github/workflows/*.yml</code>: jobs, steps, reusable workflows</td></tr>
-          <tr><td>Cloud credentials</td><td>Service connection (use <b>workload identity federation</b>, no stored secret)</td><td>OIDC federated credential to Azure / AWS</td></tr>
-          <tr><td>Secrets and config</td><td>Variable groups, linked to Key Vault</td><td>Repository / environment secrets</td></tr>
-          <tr><td>Gated deploys</td><td>Environments with approvals and checks</td><td>Environments with required reviewers</td></tr>
-          <tr><td>PR rules</td><td>Branch policies: build validation, required reviewers</td><td>Branch protection / rulesets, required checks</td></tr></table>
+      id: "cicd", title: "CI/CD for AI services", yt: "GitHub Actions CI/CD pipeline tutorial",
+      body: `<p>Postings ask for Git-based workflows, pull requests, automated quality checks and CI/CD. The examples here use <b>GitHub Actions</b>; GitLab CI, Jenkins and other tools use the same ideas with different vocabulary.</p>
+        <table><tr><th>Concept</th><th>What it looks like</th></tr>
+          <tr><td>Pipeline definition</td><td><code>.github/workflows/*.yml</code>: jobs, steps, reusable workflows</td></tr>
+          <tr><td>Deploy credentials</td><td><b>OIDC federation</b>: the pipeline exchanges a short-lived token for access, so no long-lived secret is stored</td></tr>
+          <tr><td>Secrets and config</td><td>Repository or environment secrets, or a secrets manager read at deploy time</td></tr>
+          <tr><td>Gated deploys</td><td>Environments with required reviewers</td></tr>
+          <tr><td>PR rules</td><td>Branch protection or rulesets with required checks</td></tr></table>
         <h3>A solid pipeline for an AI service</h3>
         <ol>
           <li><b>On every PR:</b> lint, type-check, unit tests, dependency and secret scanning.</li>
           <li><b>Integration tests</b> against containers for the database and a mocked or sandbox model.</li>
           <li><b>AI eval gate:</b> run the golden-set evals; block the merge if groundedness, task success or safety scores drop below thresholds.</li>
-          <li><b>Build the image once</b>, scan it, tag it with the commit SHA, push to ACR.</li>
+          <li><b>Build the image once</b>, scan it, tag it with the commit SHA, push to your container registry.</li>
           <li><b>Deploy to dev, then test, then prod</b> with approvals; run database migrations as a pipeline step; smoke-test after each deploy.</li>
-          <li><b>Rollback:</b> redeploy the previous image tag (or <code>oc rollout undo</code>); keep migrations backward compatible so rollback is safe.</li></ol>
+          <li><b>Rollback:</b> redeploy the previous image tag (for example <code>kubectl rollout undo</code>); keep migrations backward compatible so rollback is safe.</li></ol>
         <h3>Testing pyramid, including AI</h3>
-        <p>Many fast unit tests; fewer integration and end-to-end tests; <b>load tests</b> before launches (k6, Locust, Azure Load Testing); <b>security tests</b> (SAST, dependency scans, prompt-injection red-team cases); and <b>AI evals</b> on every prompt or model change. The Evals lesson in the AI track covers building the eval harness.</p>`,
-      code: [{ label: "azure-pipelines.yml: test, eval gate, build and deploy with approval", code: `trigger: { branches: { include: [main] } }
-pr: { branches: { include: [main] } }
+        <p>Many fast unit tests; fewer integration and end-to-end tests; <b>load tests</b> before launches (k6, Locust); <b>security tests</b> (SAST, dependency scans, prompt-injection red-team cases); and <b>AI evals</b> on every prompt or model change. The Evals lesson in the AI track covers building the eval harness.</p>`,
+      code: [{ label: ".github/workflows/ci.yml: test, eval gate, build and deploy with approval", code: `name: ci
+on:
+  pull_request: { branches: [main] }
+  push: { branches: [main] }
 
-variables:
-  - group: knowledge-api-settings     # linked to Key Vault
-  - name: image
-    value: myacr.azurecr.io/knowledge-api:$(Build.SourceVersion)
-
-stages:
-- stage: Test
-  jobs:
-  - job: test
-    pool: { vmImage: ubuntu-latest }
+jobs:
+  test:
+    runs-on: ubuntu-latest
     steps:
-    - script: pip install -r requirements.txt -r requirements-dev.txt
-    - script: ruff check . && mypy app && pytest -q
-    - script: python evals/run.py --min-groundedness 0.85 --min-task-success 0.8
-      displayName: AI eval gate
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: ruff check . && mypy app && pytest -q
+      - name: AI eval gate
+        run: python evals/run.py --min-groundedness 0.85 --min-task-success 0.8
 
-- stage: Build
-  dependsOn: Test
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: image
+  build:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions: { contents: read, packages: write }
     steps:
-    - task: Docker@2
-      inputs: { containerRegistry: acr-connection, repository: knowledge-api, command: buildAndPush, tags: $(Build.SourceVersion) }
+      - uses: actions/checkout@v4
+      - run: docker build -t ghcr.io/my-org/knowledge-api:"$GITHUB_SHA" .
+      - run: docker push ghcr.io/my-org/knowledge-api:"$GITHUB_SHA"
 
-- stage: Prod
-  dependsOn: Build
-  jobs:
-  - deployment: deploy
-    environment: prod                 # approvals and checks configured on the environment
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - script: oc set image deployment/knowledge-api api=$(image) && oc rollout status deployment/knowledge-api` }],
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: prod              # required reviewers are configured on the environment
+    permissions: { id-token: write, contents: read }   # OIDC: no stored deploy secret
+    steps:
+      - run: kubectl set image deployment/knowledge-api api=ghcr.io/my-org/knowledge-api:"$GITHUB_SHA" && kubectl rollout status deployment/knowledge-api` }],
       cards: [
-        ["What is workload identity federation for a pipeline?", "The pipeline proves its identity to Entra ID (or AWS) with a short-lived OIDC token instead of a stored client secret, so there's no long-lived credential to leak or rotate."],
+        ["What is OIDC federation for a pipeline?", "The pipeline proves its identity with a short-lived OIDC token that the target trusts, instead of a stored client secret, so there's no long-lived credential to leak or rotate."],
         ["Why build the container image once and promote it?", "The exact artifact you tested is what reaches production; rebuilding per environment can pull different dependencies."],
         ["Where do AI evals fit in CI/CD?", "As a gate on PRs that change prompts, models, retrieval or tools: run the golden set, compare with the baseline, and block merges that regress quality or safety."],
       ],
     },
     {
       id: "aiobs", title: "Observability for AI applications", yt: "OpenTelemetry LLM observability tracing",
-      body: `<p>"Instrument applications and AI workflows with logs, metrics, traces, evaluation results, usage data and alerts while protecting sensitive information" is close to a quote you'll see in postings. Classic observability (Cloud track, Operations) still applies; AI adds new signals and new privacy risks.</p>
+      body: `<p>"Instrument applications and AI workflows with logs, metrics, traces, evaluation results, usage data and alerts while protecting sensitive information" is close to a quote you'll see in postings. Classic observability (see the Cloud Prep app) still applies; AI adds new signals and new privacy risks.</p>
         <h3>Traces are the backbone</h3>
         <ul>
           <li>Use <b>OpenTelemetry</b>: one trace per user request, with spans for retrieval, reranking, each model call and each tool call. Propagate the trace ID to the frontend so feedback links back to it.</li>
           <li>OpenTelemetry's <b>GenAI semantic conventions</b> standardize attributes like the model name, operation and input/output token counts, so tools can chart them consistently.</li>
-          <li>Backends: Azure Monitor / Application Insights, Grafana stack, Datadog, or LLM-focused tools such as Langfuse or Arize Phoenix.</li></ul>
+          <li>Backends: Grafana stack, Datadog, your platform's monitoring service, or LLM-focused tools such as Langfuse or Arize Phoenix.</li></ul>
         <h3>What to measure</h3>
         <ul>
           <li><b>Performance:</b> time to first token, total latency (p50/p95), tokens per second, queue time.</li>
@@ -1082,9 +939,8 @@ assert cost_spike([1, 1, 2], 2) is False, "exactly factor times the average is n
     { id: "r12", topic: "integration", q: "How would you keep a search index in sync with PLM documents?", a: "Incremental sync using a watermark or change feed, upserts guarded by version so older updates never win, propagate deletes and ACL changes, enrich with project, revision and lifecycle state, run as a monitored worker with dead-letter handling, and alert on lag." },
     { id: "r13", topic: "mfgdata", q: "Explain the difference between PDM, PLM, ERP and MES to a software engineer.", a: "PDM manages CAD files and versions; PLM manages the product definition (parts, BOMs, revisions, changes); ERP runs the business (orders, purchasing, inventory, cost); MES runs the shop floor (work in progress, routing, quality, traceability). Data flows roughly CAD to PDM to PLM to ERP to MES." },
     { id: "r14", topic: "mfgdata", q: "What AI use cases would you propose for a custom automation machine builder?", a: "Search and reuse of past machine designs and documents, BOM and change-order Q&A with citations to released revisions, drafting quotes and risk lists from similar projects, service assistants over manuals and field reports, and summarizing engineering changes. Start with the one with clear data access and a measurable outcome." },
-    { id: "r15", topic: "openshift", q: "What changes when you move a containerized app from AKS to Azure Red Hat OpenShift?", a: "Pods run as a random non-root UID under SCCs, so images must be group-0 writable and use high ports; Routes expose services; Projects replace bare namespaces; the oc CLI and Operators are standard; registry pull secrets, Key Vault CSI and Entra ID login need setting up." },
-    { id: "r16", topic: "gpucloud", q: "How do you plan capacity for an LLM feature expected to reach 20 requests per second?", a: "Measure tokens per request and what one replica (or deployment) sustains at the latency target; replicas = demand / per-replica throughput plus 20-30% headroom; check quotas and PTU vs pay-as-you-go; load-test; and set autoscaling on queue depth with warm replicas." },
-    { id: "r17", topic: "azdevops", q: "Describe a CI/CD pipeline for an LLM-powered API.", a: "PR checks (lint, types, unit tests, secret and dependency scans), integration tests, an AI eval gate against a golden set, build the image once tagged with the commit, scan and push to the registry, deploy through environments with approvals, run migrations, smoke-test, and roll back by redeploying the previous tag." },
+    { id: "r16", topic: "selfhost", q: "How do you plan capacity for an LLM feature expected to reach 20 requests per second?", a: "Measure tokens per request and what one replica (or deployment) sustains at the latency target; replicas = demand / per-replica throughput plus 20-30% headroom; check quotas and PTU vs pay-as-you-go; load-test; and set autoscaling on queue depth with warm replicas." },
+    { id: "r17", topic: "cicd", q: "Describe a CI/CD pipeline for an LLM-powered API.", a: "PR checks (lint, types, unit tests, secret and dependency scans), integration tests, an AI eval gate against a golden set, build the image once tagged with the commit, scan and push to the registry, deploy through environments with approvals, run migrations, smoke-test, and roll back by redeploying the previous tag." },
     { id: "r18", topic: "aiobs", q: "What would you instrument in a production RAG application?", a: "OpenTelemetry traces with spans for retrieval, reranking, model and tool calls; latency (TTFT, p95), tokens and cost per request; errors, retries and 429s; retrieval hit rate and online eval scores; user feedback tied to trace IDs; with redaction so prompts and documents don't leak into logs." },
     { id: "r19", topic: "aifrontend", q: "What makes a good UI for an AI assistant used by engineers?", a: "Streaming with a stop button, clickable citations to exact sources, visible progress for multi-step work, clear 'not found' and 'no access' states, approval screens for actions, and quick feedback that feeds evaluation." },
     { id: "r20", topic: "aicoding", q: "How do you use AI coding assistants while keeping quality and security?", a: "Plan before coding, keep changes small, use tests as the contract, review every diff as if a colleague wrote it, keep project instructions in the repo, never share secrets or restricted data, and verify APIs against docs. Use them most for boilerplate, tests, refactors and exploration." },
@@ -1093,42 +949,38 @@ assert cost_spike([1, 1, 2], 2) is False, "exactly factor times the average is n
   ],
 
   quiz: [
-    { id: "rq1", tags: ["ai", "aicloud"], topic: "selfhost", q: "Which technique lets an inference server add new requests to a batch that is already running?", options: ["Continuous batching", "Quantization", "Speculative caching", "Sharding"], answer: 0, why: "Continuous (in-flight) batching slots new requests in as others finish, keeping the GPU busy." },
-    { id: "rq2", tags: ["ai", "aicloud"], topic: "selfhost", q: "Roughly how much GPU memory do the weights of an 8-billion-parameter model need at 16-bit precision?", options: ["2 GB", "8 GB", "16 GB", "64 GB"], answer: 2, why: "8 billion parameters x 2 bytes = 16 GB, before the KV cache and runtime overhead." },
-    { id: "rq3", tags: ["aicloud"], topic: "selfhost", q: "What's the main reason to put a model gateway in front of local and cloud models?", options: ["To train models faster", "Central auth, quotas, routing, fallbacks and usage logging through one API", "To replace the vector database", "To avoid writing prompts"], answer: 1, why: "A gateway centralizes access control, budgets, routing and observability across providers." },
+    { id: "rq1", tags: ["ai"], topic: "selfhost", q: "Which technique lets an inference server add new requests to a batch that is already running?", options: ["Continuous batching", "Quantization", "Speculative caching", "Sharding"], answer: 0, why: "Continuous (in-flight) batching slots new requests in as others finish, keeping the GPU busy." },
+    { id: "rq2", tags: ["ai"], topic: "selfhost", q: "Roughly how much GPU memory do the weights of an 8-billion-parameter model need at 16-bit precision?", options: ["2 GB", "8 GB", "16 GB", "64 GB"], answer: 2, why: "8 billion parameters x 2 bytes = 16 GB, before the KV cache and runtime overhead." },
+    { id: "rq3", tags: ["ai"], topic: "selfhost", q: "What's the main reason to put a model gateway in front of local and cloud models?", options: ["To train models faster", "Central auth, quotas, routing, fallbacks and usage logging through one API", "To replace the vector database", "To avoid writing prompts"], answer: 1, why: "A gateway centralizes access control, budgets, routing and observability across providers." },
     { id: "rq4", tags: ["ai"], topic: "entagents", q: "An agent proposes to update a released BOM. What should happen first?", options: ["Execute it if the model is confident", "Ask the model to double-check itself", "Show the exact change to a human for approval and log the decision", "Retry until it succeeds"], answer: 2, why: "Writes to systems of record need human approval with a clear preview, plus an audit trail." },
     { id: "rq5", tags: ["ai"], topic: "entagents", q: "Which error should NOT be retried automatically?", options: ["HTTP 503 Service Unavailable", "HTTP 429 Too Many Requests", "A network timeout", "HTTP 400 validation error"], answer: 3, why: "A 400 means the request itself is wrong; retrying sends the same bad request again." },
     { id: "rq6", tags: ["ai"], topic: "permrag", q: "Where should document permissions be enforced in an enterprise RAG system?", options: ["In the system prompt", "During retrieval, using the user's identity, before content reaches the model", "Only in the frontend", "After the model answers, by scanning the text"], answer: 1, why: "Filter at retrieval with default deny; the model can only leak what's in its context." },
     { id: "rq7", tags: ["ai"], topic: "permrag", q: "Reciprocal rank fusion scores a document by:", options: ["Its cosine similarity only", "The sum of 1 / (k + rank) across result lists", "Its BM25 score divided by length", "The number of times it was clicked"], answer: 1, why: "RRF combines positions from each ranked list, avoiding score normalization." },
-    { id: "rq8", tags: ["ai", "cloud"], topic: "pgvector", q: "Which PostgreSQL statement builds an index without blocking writes?", options: ["CREATE INDEX LOCKFREE", "CREATE INDEX CONCURRENTLY", "REINDEX FAST", "ALTER TABLE ... ONLINE"], answer: 1, why: "CONCURRENTLY avoids the write lock (it's slower and can't run inside a transaction)." },
+    { id: "rq8", tags: ["ai"], topic: "pgvector", q: "Which PostgreSQL statement builds an index without blocking writes?", options: ["CREATE INDEX LOCKFREE", "CREATE INDEX CONCURRENTLY", "REINDEX FAST", "ALTER TABLE ... ONLINE"], answer: 1, why: "CONCURRENTLY avoids the write lock (it's slower and can't run inside a transaction)." },
     { id: "rq9", tags: ["ai"], topic: "pgvector", q: "In pgvector, the operator <=> computes:", options: ["Cosine distance", "Euclidean distance", "Inner product", "Jaccard similarity"], answer: 0, why: "<=> is cosine distance; <-> is L2 and <#> is negative inner product." },
-    { id: "rq10", tags: ["ai", "cloud"], topic: "integration", q: "Why must message consumers be idempotent?", options: ["Brokers usually deliver at least once, so duplicates happen", "It makes messages smaller", "SOAP requires it", "It removes the need for retries"], answer: 0, why: "With at-least-once delivery, processing the same message twice must be safe." },
+    { id: "rq10", tags: ["ai"], topic: "integration", q: "Why must message consumers be idempotent?", options: ["Brokers usually deliver at least once, so duplicates happen", "It makes messages smaller", "SOAP requires it", "It removes the need for retries"], answer: 0, why: "With at-least-once delivery, processing the same message twice must be safe." },
     { id: "rq11", tags: ["ai"], topic: "integration", q: "A SOAP service is described by a:", options: ["GraphQL schema", "WSDL document", "OpenAPI YAML only", "Protobuf file"], answer: 1, why: "SOAP services publish a WSDL describing operations and XML message types." },
     { id: "rq12", tags: ["ai"], topic: "mfgdata", q: "Which system is the usual home of parts, BOMs, revisions and engineering change orders?", options: ["MES", "ERP", "PLM", "CRM"], answer: 2, why: "PLM holds the product definition and its change process; ERP and MES consume it." },
-    { id: "rq13", tags: ["cloud", "aicloud"], topic: "openshift", q: "On OpenShift, a container fails writing to /app as a non-root random UID. The usual fix is:", options: ["Run as root", "Make /app group-owned by GID 0 and group-writable", "Disable SCCs cluster-wide", "Use a bigger node"], answer: 1, why: "OpenShift assigns a random UID in group 0; group-writable paths work without weakening security." },
-    { id: "rq14", tags: ["cloud", "aicloud"], topic: "openshift", q: "Which OpenShift object exposes a Service through the built-in router with TLS options?", options: ["Route", "ImageStream", "BuildConfig", "Project"], answer: 0, why: "A Route publishes a Service via the router with edge, passthrough or re-encrypt TLS." },
-    { id: "rq15", tags: ["aicloud"], topic: "gpucloud", q: "Which signal is best for autoscaling GPU inference replicas?", options: ["CPU usage", "Disk space", "Queue depth or concurrent requests", "Number of pods"], answer: 2, why: "GPU serving is bound by request load and the GPU, not CPU; scale on queue depth or concurrency." },
-    { id: "rq16", tags: ["aicloud"], topic: "gpucloud", q: "Provisioned throughput (e.g. Azure OpenAI PTU) is best for:", options: ["Rare, spiky experiments", "Steady, high-volume traffic needing predictable latency", "Storing embeddings", "Fine-tuning only"], answer: 1, why: "Reserved capacity pays off when usage is steady and latency must be predictable." },
-    { id: "rq17", tags: ["cloud", "ai"], topic: "azdevops", q: "Workload identity federation in a pipeline means:", options: ["Sharing one admin password", "Exchanging a short-lived OIDC token for cloud access instead of storing a secret", "Running builds on-premises", "Disabling approvals"], answer: 1, why: "Federated credentials remove long-lived secrets from CI/CD." },
-    { id: "rq18", tags: ["ai", "cloud", "aicloud"], topic: "aiobs", q: "What should a production AI app log by default about retrieved documents?", options: ["Full document text", "Document IDs and metadata", "Nothing at all", "Users' passwords"], answer: 1, why: "IDs enable debugging without copying confidential content into logs." },
+    { id: "rq15", tags: ["ai"], topic: "selfhost", q: "Which signal is best for autoscaling GPU inference replicas?", options: ["CPU usage", "Disk space", "Queue depth or concurrent requests", "Number of pods"], answer: 2, why: "GPU serving is bound by request load and the GPU, not CPU; scale on queue depth or concurrency." },
+    { id: "rq17", tags: ["ai"], topic: "cicd", q: "Workload identity federation in a pipeline means:", options: ["Sharing one admin password", "Exchanging a short-lived OIDC token for cloud access instead of storing a secret", "Running builds on-premises", "Disabling approvals"], answer: 1, why: "Federated credentials remove long-lived secrets from CI/CD." },
+    { id: "rq18", tags: ["ai"], topic: "aiobs", q: "What should a production AI app log by default about retrieved documents?", options: ["Full document text", "Document IDs and metadata", "Nothing at all", "Users' passwords"], answer: 1, why: "IDs enable debugging without copying confidential content into logs." },
     // Checks for the lessons without coding exercises: answering all of a lesson's questions correctly completes it.
-    { id: "rq19", tags: ["ai", "cloud"], topic: "pgvector", q: "Which pgvector index usually gives the best recall and query speed, at the cost of slower builds and more memory?", options: ["IVFFlat", "HNSW", "B-tree", "GIN"], answer: 1, why: "HNSW is the usual choice for recall and speed; IVFFlat builds faster but needs training data, and B-tree and GIN serve ordinary columns and full-text search." },
-    { id: "rq20", tags: ["cloud", "aicloud"], topic: "openshift", q: "In OpenShift, a Project is:", options: ["A Git repository", "A namespace with extra defaults and quotas", "A container image", "A GPU node pool"], answer: 1, why: "Projects wrap Kubernetes namespaces with defaults such as quotas, limits and permissions." },
-    { id: "rq21", tags: ["ai", "cloud"], topic: "azdevops", q: "Where should an AI eval gate run in a CI/CD pipeline?", options: ["Only after deploying to production", "On pull requests, blocking the merge when scores drop below thresholds", "Once a quarter", "Only on developers' laptops"], answer: 1, why: "Running the golden-set evals on every PR catches quality regressions before they merge." },
-    { id: "rq22", tags: ["ai", "cloud"], topic: "azdevops", q: "Why build the container image once and tag it with the commit SHA?", options: ["The same tested image is promoted through every environment, and rollback means redeploying a previous tag", "It makes the image smaller", "Registries require it", "It removes the need for tests"], answer: 0, why: "Build once, deploy many: what you tested is exactly what reaches production, and every version stays addressable for rollback." },
+    { id: "rq19", tags: ["ai"], topic: "pgvector", q: "Which pgvector index usually gives the best recall and query speed, at the cost of slower builds and more memory?", options: ["IVFFlat", "HNSW", "B-tree", "GIN"], answer: 1, why: "HNSW is the usual choice for recall and speed; IVFFlat builds faster but needs training data, and B-tree and GIN serve ordinary columns and full-text search." },
+    { id: "rq21", tags: ["ai"], topic: "cicd", q: "Where should an AI eval gate run in a CI/CD pipeline?", options: ["Only after deploying to production", "On pull requests, blocking the merge when scores drop below thresholds", "Once a quarter", "Only on developers' laptops"], answer: 1, why: "Running the golden-set evals on every PR catches quality regressions before they merge." },
+    { id: "rq22", tags: ["ai"], topic: "cicd", q: "Why build the container image once and tag it with the commit SHA?", options: ["The same tested image is promoted through every environment, and rollback means redeploying a previous tag", "It makes the image smaller", "Registries require it", "It removes the need for tests"], answer: 0, why: "Build once, deploy many: what you tested is exactly what reaches production, and every version stays addressable for rollback." },
     { id: "rq23", tags: ["ai"], topic: "aicoding", q: "What's the safest way to use an AI coding assistant on a large change?", options: ["Ask for the whole feature in one prompt and merge it", "Plan first, implement in small steps with tests, and review every diff", "Let it run commands against production to check its work", "Skip review whenever the tests it wrote pass"], answer: 1, why: "Small, planned, tested steps keep each diff reviewable, and you stay accountable for what you merge." },
     { id: "rq24", tags: ["ai"], topic: "aicoding", q: "Which of these should never go into an AI tool your company hasn't approved?", options: ["A public library's documentation", "Customer data and credentials", "An open-source error message", "A question about Python syntax"], answer: 1, why: "Secrets, personal or customer data and confidential designs stay out of unapproved tools." },
     { id: "rq25", tags: ["ai"], topic: "aicoding", q: "An assistant suggests a library function you've never seen. What do you do?", options: ["Trust it: models know every API", "Check it against the library's documentation, since assistants can invent or misremember APIs", "Ask the assistant whether it's sure", "Remove the library"], answer: 1, why: "Invented or outdated APIs are a common failure; the docs are the source of truth." },
-    { id: "rq26", tags: ["ai", "cloud", "aicloud"], topic: "behavioral", q: "In behavioural interviews, STAR stands for:", options: ["Situation, Task, Action, Result", "Skills, Training, Achievements, References", "Start, Try, Adjust, Repeat", "Strategy, Tactics, Analysis, Review"], answer: 0, why: "Situation and Task set the scene, Action is what you did, Result is the outcome (with numbers if you have them)." },
-    { id: "rq27", tags: ["ai", "cloud", "aicloud"], topic: "behavioral", q: "You disagree with part of an architect's plan. The strongest approach is to:", options: ["Quietly build your own version", "Raise the concern with evidence such as a prototype or benchmark, then commit to whatever is decided", "Refuse to start until the plan changes", "Go straight to their manager"], answer: 1, why: "Evidence and clear trade-offs make the case; committing once decided shows you can work from an architect's direction." },
-    { id: "rq28", tags: ["ai", "cloud", "aicloud"], topic: "behavioral", q: "About how long should one behavioural story take to tell?", options: ["About 10 seconds", "About two minutes, ending with the result and what you learned", "Ten minutes or more", "As long as the interviewer allows"], answer: 1, why: "Two minutes is long enough for real detail and short enough to leave time for follow-up questions." },
+    { id: "rq26", tags: ["ai"], topic: "behavioral", q: "In behavioural interviews, STAR stands for:", options: ["Situation, Task, Action, Result", "Skills, Training, Achievements, References", "Start, Try, Adjust, Repeat", "Strategy, Tactics, Analysis, Review"], answer: 0, why: "Situation and Task set the scene, Action is what you did, Result is the outcome (with numbers if you have them)." },
+    { id: "rq27", tags: ["ai"], topic: "behavioral", q: "You disagree with part of an architect's plan. The strongest approach is to:", options: ["Quietly build your own version", "Raise the concern with evidence such as a prototype or benchmark, then commit to whatever is decided", "Refuse to start until the plan changes", "Go straight to their manager"], answer: 1, why: "Evidence and clear trade-offs make the case; committing once decided shows you can work from an architect's direction." },
+    { id: "rq28", tags: ["ai"], topic: "behavioral", q: "About how long should one behavioural story take to tell?", options: ["About 10 seconds", "About two minutes, ending with the result and what you learned", "Ten minutes or more", "As long as the interviewer allows"], answer: 1, why: "Two minutes is long enough for real detail and short enough to leave time for follow-up questions." },
   ],
 
   // Steps keep their order (progress is saved by position): what to do, what you should see, and a hint.
   labs: [
     {
       id: "knowledge", title: "Engineering knowledge assistant (capstone)", level: "Advanced", time: "20-30 hours",
-      stack: ["React + TypeScript", "FastAPI", "PostgreSQL + pgvector", "LLM API", "Docker", "Azure DevOps or GitHub Actions"],
+      stack: ["React + TypeScript", "FastAPI", "PostgreSQL + pgvector", "LLM API", "Docker", "GitHub Actions"],
       goal: "An assistant over engineering documents (manuals, drawings' metadata, change orders) that answers with citations, respects permissions, and can draft one action behind human approval. It matches what manufacturing and enterprise AI roles describe almost line by line.",
       before: [
         "**Cost:** embeddings for 100 documents cost cents; answering questions during development costs a few dollars with a mid-size model; the CI eval gate adds a little per run. Cloud deployment is optional and is where costs grow.",
@@ -1163,7 +1015,7 @@ assert cost_spike([1, 1, 2], 2) is False, "exactly factor times the average is n
           hint: "Your `span_attrs` and `percentile` exercises cover the attributes and the p95 metric." },
         { do: "Containerize (non-root, OpenShift-friendly) and deploy via a pipeline to a cloud container service or a local Kubernetes/OpenShift (CRC) cluster",
           see: "The pipeline builds the image, deploys it, and a smoke test passes against the deployed URL.",
-          hint: "Group-0 writable paths and a high port keep the image OpenShift-friendly (see the ARO lesson)." },
+          hint: "Group-0 writable paths and a high port keep the image OpenShift-friendly: run as a non-root user and don't assume a fixed UID." },
         { do: "Write the README: architecture diagram, eval results, decisions and trade-offs",
           see: "A reader understands what it does, how well it works (numbers), and why you built it this way, in five minutes.",
           hint: "Lead with a screenshot and the eval table; keep decisions as short bullet points." },
@@ -1174,7 +1026,7 @@ assert cost_spike([1, 1, 2], 2) is False, "exactly factor times the average is n
     },
     {
       id: "gateway", title: "Self-hosted model platform with a gateway", level: "Advanced", time: "12-18 hours",
-      stack: ["Kubernetes or OpenShift (kind / CRC / AKS)", "Ollama or vLLM", "LiteLLM", "OpenTelemetry + Grafana", "k6"],
+      stack: ["Kubernetes or OpenShift (kind / CRC)", "Ollama or vLLM", "LiteLLM", "OpenTelemetry + Grafana", "k6"],
       goal: "Serve an open-weight model and an embedding model on Kubernetes behind a gateway with auth, quotas, cloud fallback and dashboards, then load-test it and publish the capacity numbers.",
       before: [
         "**Cost:** free if you run everything locally on CPU with kind or OpenShift Local. The optional cloud fallback calls a paid API (cents during testing); cloud GPUs cost dollars per hour.",
@@ -1212,7 +1064,6 @@ assert cost_spike([1, 1, 2], 2) is False, "exactly factor times the average is n
   ],
 
   glossary: [
-    ["ARO", "Azure Red Hat OpenShift: OpenShift as a managed service on Azure, jointly run by Microsoft and Red Hat."],
     ["BOM", "Bill of materials: the tree of assemblies and parts, with quantities, that make up a product."],
     ["Circuit breaker", "A pattern that stops calling a failing dependency for a while so failures don't cascade."],
     ["Continuous batching", "Adding new requests to a running inference batch as slots free up, to keep GPUs busy."],
@@ -1230,7 +1081,6 @@ assert cost_spike([1, 1, 2], 2) is False, "exactly factor times the average is n
     ["PDM", "Product data management: version control for CAD files and their references."],
     ["pgvector", "PostgreSQL extension adding a vector type, distance operators and approximate nearest-neighbour indexes."],
     ["PLM", "Product lifecycle management: parts, BOMs, revisions, lifecycle states and change processes."],
-    ["PTU", "Provisioned throughput unit: reserved Azure OpenAI capacity for predictable latency."],
     ["Quantization", "Storing model weights in fewer bits (e.g. 4 or 8) to cut memory and cost, with some quality loss."],
     ["RRF", "Reciprocal rank fusion: combining ranked lists by summing 1 / (k + rank)."],
     ["SCC", "Security context constraint: OpenShift's policy controlling what pods may do (user IDs, privileges, volumes)."],

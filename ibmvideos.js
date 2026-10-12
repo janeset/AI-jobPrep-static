@@ -30,22 +30,10 @@ const IBM_PLAYLIST_GROUPS = [
     IBM_PL("PLOspHqNVtKAC0-KCayX4_nEfSjE8VhbZx", "Smart Talks with IBM", null, "Ac-BIziJPXQ", [], "Conversations on how organizations put AI and technology to work."),
     IBM_PL("PLOspHqNVtKABGIbaWP1xYQHbwuXjZwqpH", "Security Intelligence", null, "dHn0qzSDMO0", [], "Security news podcast, increasingly about AI threats and defences."),
   ] },
-  { name: "Cloud, DevOps & platforms", lists: [
-    IBM_PL("PLOspHqNVtKAC-_ZAGresP-i0okHe5FjcJ", "Cloud Fundamentals", 67, "20QUNgFIrK0", [["cloud", "fundamentals"]]),
-    IBM_PL("PLOspHqNVtKABAVX4azqPIu6UfsPzSu2YN", "Kubernetes Essentials", 18, "2vMEQ5zs1ko", [["cloud", "kubernetes"], ["roles", "openshift"]]),
-    IBM_PL("PLOspHqNVtKACSagAEeIY20NMVLNeQ1ZJx", "Cloud Native Explained", 13, "fp9_ubiKqFU", [["cloud", "containers"]]),
-    IBM_PL("PLOspHqNVtKADX-InvL3aRFYuOYvi-Qmep", "Cloud Native / Containers", 5, "aSrqRSk43lY", [["cloud", "containers"]]),
-    IBM_PL("PLOspHqNVtKAAm1dmyiR9WMmw1UBoOwZVj", "DevOps Explained", 18, "UbtB4sMaaNM", [["cloud", "devops"], ["roles", "azdevops"]]),
-    IBM_PL("PLOspHqNVtKAA75RfVxm-CLdARe0VpBwbx", "DevOps: AiOps, Application Health and Observability", 3, "CAQ_a2-9UOI", [["roles", "aiobs"], ["cloud", "operations"]]),
-    IBM_PL("PLOspHqNVtKAAihZ-Zrs1Gk7BZjqaa1pi2", "DevOps: ARM and FinOps", 1, "Y1vpWDusoSs", [["cloud", "operations"]]),
+  { name: "Engineering & operations", lists: [
+    IBM_PL("PLOspHqNVtKAAm1dmyiR9WMmw1UBoOwZVj", "DevOps Explained", 18, "UbtB4sMaaNM", [["roles", "cicd"]]),
+    IBM_PL("PLOspHqNVtKAA75RfVxm-CLdARe0VpBwbx", "DevOps: AiOps, Application Health and Observability", 3, "CAQ_a2-9UOI", [["roles", "aiobs"]]),
     IBM_PL("PLOspHqNVtKAAAq9pHWlEiRUVcYMCcu4X0", "API Essentials", 12, "hWRRdICvMNs", [["roles", "integration"]]),
-    IBM_PL("PLOspHqNVtKACfjqfEwR3iKz1gJILKj5Tn", "Cloud Security Explained", 32, "aXMPqfZt1gk", [["cloud", "security"]]),
-    IBM_PL("PLOspHqNVtKAA_5N3pI49wkH4WsTkeZ_iQ", "Cloud Networking Explained", 8, "sCR3SAVdyCc", [["cloud", "networking"]]),
-    IBM_PL("PLOspHqNVtKAAXDobTc9kBWwnfgzNV2k_a", "Cloud Data Storage Explained", 26, "Q5aTUc7c4jg", [["cloud", "storage"]]),
-    IBM_PL("PLOspHqNVtKABPTyvxoNW0e4XSgCNdZ40F", "Hybrid Cloud Explained", 8, "sUoeVhbp4cQ", [["cloud", "architecture"]]),
-    IBM_PL("PLOspHqNVtKACWzKwzaPCPTiByXhyRY8NU", "Unlock IT / Hybrid Cloud", 6, "vxJobGtqKVM", [["cloud", "architecture"]]),
-    IBM_PL("PLOspHqNVtKABcMvsegAjlnKYMMV5KsSml", "Multicloud Management", 9, "AjtdZ3gFRjU", [["cloud", "governance"]]),
-    IBM_PL("PLOspHqNVtKACLF9lk3edNG43LfUPcWioZ", "Edge Computing", 8, "cEOUeItHDdo"),
   ] },
   { name: "Data", lists: [
     IBM_PL("PLOspHqNVtKABpPMnwkx27tEO2KOBvHLu6", "Data Explained", 11, "GE3JOFwTWVM", [["cloud", "data"]]),
@@ -154,7 +142,7 @@ function ibmOverview() {
     </section>` +
     IBM_PLAYLIST_GROUPS.filter((g) => g.ai).map((g) => `<div class="section-head" style="margin-top:6px"><h3>${esc(g.name)}</h3><span class="muted">${g.lists.length} playlist${g.lists.length === 1 ? "" : "s"}</span></div>
       <div class="pl-grid">${g.lists.map(ibmPlaylistCard).join("")}</div>`).join("") +
-    `<p class="muted" style="font-size:.82rem">Cloud, data and security playlists are in the collapsible groups in the panel. Playlist sizes as of October 2026; the channel adds videos regularly.</p>`;
+    `<p class="muted" style="font-size:.82rem">Engineering, data and security playlists are in the collapsible groups in the panel. Playlist sizes as of October 2026; the channel adds videos regularly.</p>`;
 }
 
 function ibmPlaylistPage(id) {
