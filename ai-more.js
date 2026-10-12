@@ -566,7 +566,7 @@ def softmax(logits, temperature=1.0):
     ["Quality & production", ["evals", "safety", "llmops", "customization"]],
   ],
   weeks: [
-    { n: 1, title: "ML & LLM foundations", topics: ["mlbasics", "foundations", "tokenization", "sampling"], labs: [], goal: "Explain ML basics and metrics, how LLMs generate text, how tokens and context windows work, and how sampling settings change the output." },
+    { n: 1, title: "ML & LLM foundations + your first AI app", topics: ["mlbasics", "foundations", "tokenization", "sampling"], labs: ["firstapp"], goal: "Explain ML basics and metrics, how LLMs generate text, how tokens and context windows work, and how sampling settings change the output. Milestone: your first working AI app, a script that gets a structured response from a model API." },
     { n: 2, title: "Calling models, prompting & structured output", topics: ["apis", "prompting", "structured"], labs: ["chatapp"], goal: "Build a streaming chat app and get reliable JSON back." },
     { n: 3, title: "Embeddings, vector search & multimodal", topics: ["embeddings", "vectorstores", "multimodal"], labs: [], goal: "Implement similarity search and chunking; send images and PDFs to a model." },
     { n: 4, title: "Retrieval-augmented generation", topics: ["rag"], labs: ["rag"], goal: "Ship a RAG app over your own documents with citations and retrieval metrics." },

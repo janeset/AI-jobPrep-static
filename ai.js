@@ -1373,6 +1373,39 @@ class LRUCache:
   // code and git, and a free or local alternative.
   labs: [
     {
+      id: "firstapp", title: "First working AI app", level: "Beginner", time: "1-2 sessions (2-3 hours)", stack: ["Python", "Anthropic SDK"],
+      goal: "Your week-1 milestone: a Python script that sends a job posting to a model and prints the details back as structured JSON. You're done when it works on three different postings and the code is on GitHub without your API key.",
+      before: [
+        "**Cost:** a few cents in total. Each run is one short request, a small fraction of a cent.",
+        "**Set a spending limit first:** in the provider's console, add a small prepaid credit or a monthly limit (say $5) before creating a key.",
+        "**Keep the key out of code and git:** put it in an environment variable named `ANTHROPIC_API_KEY` (or a `.env` file listed in `.gitignore`). The SDK reads that variable by itself.",
+        "**Free alternative:** Ollama runs an open-weight model on your own computer at no cost; ask it for JSON in the prompt and parse the reply the same way.",
+      ],
+      steps: [
+        { do: "Install Python 3.10+ and the SDK (`pip install anthropic`), create an API key with a spending limit, and store it in `ANTHROPIC_API_KEY`",
+          see: "`python -c \"import anthropic, os; print(bool(os.environ.get('ANTHROPIC_API_KEY')))\"` prints True.",
+          hint: "On Windows PowerShell: `$env:ANTHROPIC_API_KEY = \"...\"` for the current session. On macOS or Linux: `export ANTHROPIC_API_KEY=...`." },
+        { do: "Write `first_app.py`: create a client with `anthropic.Anthropic()`, call `client.messages.create(model=\"claude-opus-5-5\", max_tokens=1000, messages=[...])` with one question, and print the reply text",
+          see: "Running `python first_app.py` prints a sensible answer to your question.",
+          hint: "The reply text is in the first text block: `next(b.text for b in response.content if b.type == \"text\")`. A 401 error means the key isn't being read." },
+        { do: "Ask for structured output: send a pasted job posting and add `output_config={\"format\": {\"type\": \"json_schema\", \"schema\": schema}}`, where the schema asks for `title` (string), `company` (string), `skills` (array of strings) and `remote` (boolean)",
+          see: "The reply text is valid JSON with exactly those four keys.",
+          hint: "Schema shape: `{\"type\": \"object\", \"properties\": {...}, \"required\": [\"title\", \"company\", \"skills\", \"remote\"], \"additionalProperties\": False}`. The Structured output lesson explains why you still validate what comes back." },
+        { do: "Parse the JSON with `json.loads` and print each field on its own line",
+          see: "Output like `Title: Junior Python Developer`, `Company: ...`, `Skills: Python, SQL`, `Remote: False`.",
+          hint: "`data = json.loads(text)`, then `print(\"Skills:\", \", \".join(data[\"skills\"]))`. Your `missing_keys` exercise is a quick extra check." },
+        { do: "Handle failures with a friendly message instead of a traceback: no network, a wrong key, rate limits",
+          see: "Unsetting the key or turning off Wi-Fi prints one clear line, such as `Could not reach the API: check your connection`.",
+          hint: "Wrap the call in `try:` and catch `anthropic.AuthenticationError`, `anthropic.RateLimitError` and `anthropic.APIConnectionError` (most specific first)." },
+        { do: "Finish line: run it on three different job postings, then push the script and a short README to GitHub",
+          see: "Three correct structured results, and a GitHub repo whose files and history contain no API key (`git log -p | grep sk-ant` finds nothing).",
+          hint: "Read the posting text from a file (`open(\"posting.txt\").read()`) or from `input()` so you can switch postings without editing code. The README says what the script does and how to run it." },
+      ],
+      resume: "Built a Python tool that extracts structured job-posting data (title, company, skills, remote) with an LLM API and a JSON schema, with error handling and no secrets in the repository.",
+      cost: "A few cents of API usage. Keep the spending limit on, and revoke the key if it ever lands in git.",
+      stretch: ["Validate each field's type before printing it", "Save the results for several postings to a CSV file", "Add a salary range field that may be null"],
+    },
+    {
       id: "chatapp", title: "Streaming chat assistant", level: "Beginner", time: "3-4 hours", stack: ["Python", "Anthropic SDK", "Streamlit / FastAPI / CLI"],
       goal: "Build a chat assistant (e.g. an interview coach) with a system prompt, streaming, conversation memory and token/cost display.",
       before: [
