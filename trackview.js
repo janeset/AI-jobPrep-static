@@ -280,7 +280,7 @@ function trOverview(T, st) {
       <div class="card"><div class="section-head"><h3>Certifications</h3><button class="btn small ghost" data-trgo="${id}|certs|">All certs &rarr;</button></div>
         <div class="list">${T.certs.map((c) => `<div class="li"><div><span class="t">${esc(c.code)}</span><div class="muted">${esc(c.name)}</div></div><span class="badge ${st.certs[c.id]?.status === "Passed" ? "done" : "plain"}">${esc(st.certs[c.id]?.status || "Not planned")}</span></div>`).join("")}</div></div>
     </div>
-    <div class="card"><div class="section-head"><h3>Full courses</h3>${channelLink(T, "Recommended channel: ")}</div>${vids(T.videos.courses)}</div>`;
+    <div class="card"><div class="section-head"><h3>Full courses</h3><span class="row">${verifiedTag(VIDEOS_VERIFIED)}${channelLink(T, "Recommended channel: ")}</span></div>${vids(T.videos.courses)}</div>`;
 }
 
 function trRoadmap(T, st) {
@@ -330,7 +330,7 @@ function trLearn(T, st) {
     ${T.glossary && T.glossary.length ? `<button class="side-i ${sel === "glossary" ? "active" : ""}" data-trsel="${id}|glossary"><span class="lbl">Glossary</span><span class="muted lbl">${T.glossary.length}</span></button>` : ""}
     ${T.videos.courses && T.videos.courses.length ? `<button class="side-i ${sel === "courses" ? "active" : ""}" data-trsel="${id}|courses"><span class="lbl">Full courses</span></button>` : ""}
     ${id === "ai" ? `<button class="side-i ${sel === "claude" ? "active" : ""}" data-trsel="${id}|claude"><span class="lbl">Claude &amp; Anthropic</span></button>` : ""}`;
-  const body = sel === "courses" && T.videos.courses ? `<h2>Full courses</h2><p class="muted">Long-form videos to watch in chunks alongside the plan.</p><div class="card">${vids(T.videos.courses)}</div>`
+  const body = sel === "courses" && T.videos.courses ? `<h2>Full courses</h2><p class="muted">Long-form videos to watch in chunks alongside the plan. ${verifiedTag(VIDEOS_VERIFIED)}</p><div class="card">${vids(T.videos.courses)}</div>`
     : sel === "glossary" && T.glossary ? trGlossary(T) : sel === "claude" && id === "ai" ? claudeLearnPage() : topicById(T, sel) ? trTopic(T, st, sel) : trMissing(T, sel);
   return `<div class="ref-layout"><aside class="ref-side">${side}</aside><section class="ref-main">${body}</section></div>`;
 }

@@ -59,8 +59,6 @@ const OPENAI_LEARN = {
   certs: "not yet verified",
 };
 
-const fmtVerified = (d) => new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-const verifiedTag = (d) => `<span class="verified" title="Checked against the official page on ${esc(d)}">Last verified ${esc(fmtVerified(d))}</span>`;
 const lessonTags = (tids) => tids.map((tid) => topicById(AI, tid)).filter(Boolean).map((t) => `<button class="tag tag-btn" ${goLearn("ai", t.id)}>${esc(t.title)}</button>`).join("");
 
 function claudeEligibility() {

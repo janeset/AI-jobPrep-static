@@ -47,6 +47,13 @@ Python exercises are auto-graded in the browser via [Pyodide](https://pyodide.or
 | `router.js` | URL routing (`#/ai/learn/rag`, `#/ai/ibm/...`, `#/interview/mock`...): refresh, Back/Forward and bookmarks |
 | `search.js` | Search index and the Ctrl+K dialog |
 
+## Keeping external links current
+
+Every certification, course list and video list shows a **Last verified** date. Change a date only after
+re-checking that content: `CLAUDE.verified` and `OPENAI_LEARN.verified` in `anthropic.js` (official
+Anthropic and OpenAI pages), and `VIDEOS_VERIFIED` in `tracks.js` (every YouTube video and playlist id,
+checked through YouTube's oEmbed endpoint). Exam prices are deliberately not stored: link to the official page.
+
 ## Your data
 
 Progress is stored in the browser's `localStorage` under `ai-prep-v1`, including postings you

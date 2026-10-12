@@ -142,7 +142,7 @@ function ibmOverview() {
     </section>` +
     IBM_PLAYLIST_GROUPS.filter((g) => g.ai).map((g) => `<div class="section-head" style="margin-top:6px"><h3>${esc(g.name)}</h3><span class="muted">${g.lists.length} playlist${g.lists.length === 1 ? "" : "s"}</span></div>
       <div class="pl-grid">${g.lists.map(ibmPlaylistCard).join("")}</div>`).join("") +
-    `<p class="muted" style="font-size:.82rem">Engineering, data and security playlists are in the collapsible groups in the panel. Playlist sizes as of October 2026; the channel adds videos regularly.</p>`;
+    `<p class="muted" style="font-size:.82rem">Engineering, data and security playlists are in the collapsible groups in the panel. Playlist sizes as of October 2026; the channel adds videos regularly. ${verifiedTag(VIDEOS_VERIFIED)}: every playlist and video link resolved.</p>`;
 }
 
 function ibmPlaylistPage(id) {
@@ -213,7 +213,7 @@ function ibmVideoList(p, list, playing) {
         <button class="pl-row-t" data-ibmplay="${p.id}|${id}">${esc(t)}</button>
         <span class="muted pl-len">${esc(len)}</span>
         <label class="pl-w" title="Watched"><input type="checkbox" data-ibmw="${id}" ${w[id] ? "checked" : ""}></label></li>`).join("") || '<li class="empty">No videos match.</li>'}</ol>
-    <p class="muted" style="font-size:.8rem;margin-bottom:0">From YouTube on 6 Oct 2026. Private or removed videos aren't listed, so a few playlists show one or two fewer than YouTube's count.</p></details>`;
+    <p class="muted" style="font-size:.8rem;margin-bottom:0">List taken from YouTube on 6 Oct 2026; ${verifiedTag(VIDEOS_VERIFIED)}. Private or removed videos aren't listed, so a few playlists show one or two fewer than YouTube's count.</p></details>`;
 }
 
 // Re-render without losing the page position or the video list's own scroll position.

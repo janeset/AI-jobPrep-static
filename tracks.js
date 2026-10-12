@@ -6,6 +6,12 @@
 const V = (id, title, ch) => ({ id, title, ch });
 const IBM = (id, title) => V(id, title, "IBM Technology");
 const IBM_CHANNEL = { name: "IBM Technology", url: "https://www.youtube.com/@IBMTechnology" };
+// When every video id and playlist id in the app last resolved on YouTube (checked through oEmbed).
+// Update it after re-running the check; shown next to the video and course lists.
+const VIDEOS_VERIFIED = "2026-10-12";
+// "Last verified 12 Oct 2026" stamps (used at render time; esc comes from app.js).
+const fmtVerified = (d) => new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+const verifiedTag = (d) => `<span class="verified" title="Links checked on ${esc(d)}">Last verified ${esc(fmtVerified(d))}</span>`;
 
 const TRACKS = {};
 
