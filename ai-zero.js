@@ -526,5 +526,5 @@ AI.aliases = {
   softmax: "sampling", temperature: "sampling", logits: "sampling", "llm-apis": "apis", prompts: "prompting", "prompt-engineering": "prompting",
   json: "structured", "structured-output": "structured", vectors: "embeddings", "vector-search": "vectorstores", "vector-db": "vectorstores", chunking: "vectorstores",
   "tool-use": "tools", "function-calling": "tools", agent: "agents", eval: "evals", testing: "evals", security: "safety", "prompt-injection": "safety",
-  ops: "llmops", "fine-tuning": "customization", finetuning: "customization", cloud: "cloudai", images: "multimodal",
+  ops: "llmops", "fine-tuning": "customization", finetuning: "customization", images: "multimodal",
 };

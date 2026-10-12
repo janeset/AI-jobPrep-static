@@ -10,7 +10,7 @@ const IBM_PLAYLIST_GROUPS = [
     IBM_PL("PLOspHqNVtKADfxkuDuHduUkDExBpEt3DF", "AI Fundamentals", 72, "kyJ1vd7yEPc", [["ai", "mlbasics"], ["ai", "foundations"]], "Core concepts from machine learning to generative AI, one short whiteboard video each."),
     IBM_PL("PLOspHqNVtKAC-FUNMq8qjYVw6_semZHw0", "AI Models Explained", 46, "F3hlZSZc6UI", [["ai", "foundations"], ["ai", "customization"], ["ai", "multimodal"]], "Model types and techniques: transformers, mixture of experts, reasoning and vision models, tuning."),
     IBM_PL("PLOspHqNVtKAAsiohuZj1Bt4XpA3_bkS3c", "Large Language Models and Chatbots", 12, "yu27PWzJI_Y", [["ai", "foundations"], ["ai", "prompting"]], "How LLMs and chatbots work, and how they're adapted with prompting and tuning."),
-    IBM_PL("PLOspHqNVtKACJx_ue2EXC1MerohY_lLKO", "AI Academy", 24, "s4r5gXdSVPM", [["ai", "cloudai"]], "Adopting AI in a business: strategy, data, governance and scaling beyond pilots."),
+    IBM_PL("PLOspHqNVtKACJx_ue2EXC1MerohY_lLKO", "AI Academy", 24, "s4r5gXdSVPM", [["ai", "safety"]], "Adopting AI in a business: strategy, data, governance and scaling beyond pilots."),
     IBM_PL("PLOspHqNVtKADe2YWKvnuqWbddubJZvQf0", "What's Popular", 41, "N3-zrhoBx6w", [], "The channel's most-watched videos across AI, cloud and security."),
   ] },
   { name: "Building with AI", ai: true, lists: [
@@ -19,7 +19,7 @@ const IBM_PLAYLIST_GROUPS = [
     IBM_PL("PLOspHqNVtKAAY8UCxA15eIK3lgE9BLc4n", "MCP Explained", 16, "7j1t3UZA1TY", [["ai", "tools"]], "The Model Context Protocol: what it is, building servers, and how it compares with APIs, A2A and skills."),
     IBM_PL("PLOspHqNVtKADqC3pf-SjB23mtqJbmwsWw", "Agentic & AI Coding Explained", 23, "mViFYTwWvcM", [["roles", "aicoding"], ["ai", "agents"]], "AI coding assistants, agentic coding, spec-driven development and AI across the SDLC."),
     IBM_PL("PLOspHqNVtKACI0uR7Oa-bkWbtTufpJNhi", "AI Technical Tutorials", 34, "OuBxnfPA15g", [["ai", "apis"], ["ai", "llmops"], ["roles", "selfhost"]], "More technical walkthroughs: inference engines, developer tooling and building AI apps."),
-    IBM_PL("PLOspHqNVtKADcG4vf83D97cKUrs5WdXXR", "AI in Action", null, "eZ1NizUx9U4", [["ai", "cloudai"]], "Real-world AI use cases and how teams put them into production."),
+    IBM_PL("PLOspHqNVtKADcG4vf83D97cKUrs5WdXXR", "AI in Action", null, "eZ1NizUx9U4", [["ai", "llmops"]], "Real-world AI use cases and how teams put them into production."),
   ] },
   { name: "Responsible & secure AI", ai: true, lists: [
     IBM_PL("PLOspHqNVtKADin6JGozvzSvUQFTQRdum-", "AI Security Explained", 25, "OvjccOrr-iw", [["ai", "safety"], ["roles", "entagents"]], "Prompt injection, jailbreaks, the OWASP LLM Top 10 and securing AI agents."),

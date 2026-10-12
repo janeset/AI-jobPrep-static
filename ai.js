@@ -19,7 +19,7 @@ const AI = {
     { n: 4, title: "Retrieval-augmented generation", topics: ["rag"], labs: ["rag"], goal: "Ship a RAG app over your own documents with citations." },
     { n: 5, title: "Tool use & agents", topics: ["tools", "agents"], labs: ["agent"], goal: "Build a tool-using assistant with guardrails." },
     { n: 6, title: "Evals, testing & safety", topics: ["evals", "safety"], labs: ["evalharness"], goal: "Build an LLM eval harness that runs automatically on every change." },
-    { n: 7, title: "LLMOps & cloud deployment", topics: ["llmops"], labs: ["deploy"], goal: "Deploy with caching, monitoring, cost limits and secure secrets." },
+    { n: 7, title: "LLMOps & deployment", topics: ["llmops"], labs: ["deploy"], goal: "Deploy with caching, monitoring, cost limits and secure secrets." },
     { n: 8, title: "Interview sprint", topics: [], labs: [], goal: "Drill the question bank and quizzes, and polish your projects' READMEs and demos." },
   ],
 
@@ -550,7 +550,7 @@ def top_k(query, docs, k):
       body: `<ul>
           <li><b>Chunking:</b> a <b>chunk</b> is a piece of a document that's embedded, stored and searched on its own. Chunks should be small enough to be specific but large enough to keep context, often a few hundred tokens, with some <b>overlap</b> (the end of one chunk repeated at the start of the next) so sentences aren't cut off from their meaning. Splitting on structure (headings, paragraphs) usually beats fixed sizes.</li>
           <li>Store <b>metadata</b> with each chunk: extra facts about it such as source, page, section, date and who may see it. You'll filter on it and cite it.</li>
-          <li><b>Vector databases</b> store embeddings and find the nearest ones fast. Checking every vector is too slow at scale, so they use <b>approximate nearest-neighbour</b> search (very likely the closest, found quickly), typically with an index structure called <b>HNSW</b>. Examples: pgvector in PostgreSQL, Pinecone, Weaviate, Chroma, OpenSearch, Azure AI Search, and managed cloud knowledge bases.</li>
+          <li><b>Vector databases</b> store embeddings and find the nearest ones fast. Checking every vector is too slow at scale, so they use <b>approximate nearest-neighbour</b> search (very likely the closest, found quickly), typically with an index structure called <b>HNSW</b>. Examples: pgvector in PostgreSQL, Pinecone, Weaviate, Chroma, OpenSearch, and managed knowledge-base services.</li>
           <li><b>Hybrid search</b> combines keyword search (<b>BM25</b>, a classic formula that scores documents by matching words; great for exact terms, codes and names) with vector search (meaning). A <b>reranker</b>, a second model that rescores a short list of results more carefully, then reorders the top candidates for precision.</li>
           <li>Respect <b>access control</b>: filter by what the user is allowed to see before results reach the model.</li></ul>
         <p class="py-note"><b>Python note:</b> <code>words[i:i + 4]</code> slices four items starting at position i. <code>" ".join(words)</code> glues a list of strings together with spaces. <code>range(0, 10, 3)</code> counts 0, 3, 6, 9 (the third number is the step). <code>text.strip()</code> removes spaces and new lines from both ends.</p>`,
@@ -1195,7 +1195,7 @@ assert "&lt;/document&gt;" in w`,
           <li><b>Reliability:</b> timeouts, retries with backoff for 429/5xx, fallbacks when a model declines or is unavailable, graceful error messages.</li>
           <li><b>Observability</b> (being able to see what your system is doing from its logs, metrics and traces): log per request: model, prompt version, input/output tokens, latency, cost, errors, and user feedback. Trace multi-step agents.</li>
           <li><b>Versioning:</b> treat prompts like code: version control, evals on every change, staged rollouts (release to a small share of users first).</li>
-          <li><b>Cloud options:</b> call providers directly or through cloud platforms such as Amazon Bedrock, Microsoft Foundry and Google Vertex AI, which helps with enterprise billing, networking, and keeping data in specific regions (e.g. Canada).</li></ul>
+          <li><b>Hosting options:</b> call a model provider's API directly, go through an enterprise cloud's managed model service (which helps with existing billing, private networking and keeping data in specific regions), or self-host an open-weight model.</li></ul>
         <p class="py-note"><b>Python note:</b> a <b>class</b> bundles data with the functions that work on it. <code>class LRUCache:</code> defines one, and <code>LRUCache(2)</code> creates an object from it, running its <code>__init__</code> function. Inside, <code>self</code> is the object itself, so <code>self.items = {}</code> stores data on it, and functions defined in the class (methods) are called as <code>cache.get(key)</code>. An <b>LRU</b> (least recently used) cache, when full, throws out the entry that was used longest ago. <code>OrderedDict</code> is a dict that keeps track of order: <code>move_to_end(key)</code> marks a key as newest and <code>popitem(last=False)</code> removes the oldest.</p>`,
       example: `# What prompt caching saves: a 50,000-token handbook sent with every question.
 handbook_tokens = 50_000
@@ -1309,7 +1309,7 @@ class LRUCache:
       cards: [
         ["Name three ways to cut LLM costs without hurting quality.", "Prompt caching for repeated context, batch processing for non-urgent jobs, trimming prompts/history and capping output, and response caching for repeated questions; then verify with evals."],
         ["What should you log for every LLM request?", "Model, prompt version, token counts, latency, cost, stop reason, errors, and a trace ID, with PII handled appropriately."],
-        ["Why might a Toronto bank call models through Amazon Bedrock or Microsoft Foundry instead of directly?", "Enterprise controls: existing cloud contracts and billing, private networking, IAM integration, and choosing regions to meet data-residency requirements."],
+        ["Why might a bank call models through its cloud provider's managed model service instead of directly?", "Enterprise controls: existing cloud contracts and billing, private networking, identity integration, and choosing regions to meet data-residency requirements."],
       ],
     },
   ],
@@ -1412,7 +1412,7 @@ class LRUCache:
       stretch: ["Add a web UI with Streamlit or a small React front end", "Let users upload a resume and job post for tailored feedback"],
     },
     {
-      id: "rag", title: "RAG over your own documents", level: "Intermediate", time: "6-10 hours", stack: ["Python", "Embedding model", "pgvector / Chroma / Azure AI Search", "LLM API"],
+      id: "rag", title: "RAG over your own documents", level: "Intermediate", time: "6-10 hours", stack: ["Python", "Embedding model", "pgvector / Chroma", "LLM API"],
       goal: "Answer questions over a document set (e.g. Ontario employment-standards guides or a public company handbook) with citations, and measure retrieval quality.",
       before: [
         "**Cost:** embedding 100 documents with a paid embedding API costs cents; each answered question costs about a cent with a mid-size model. Budget a few dollars.",
@@ -1523,26 +1523,26 @@ class LRUCache:
       stretch: ["Add red-team cases for prompt injection and PII leakage", "Track scores over time in a simple dashboard"],
     },
     {
-      id: "deploy", title: "Deploy an LLM app on the cloud", level: "Advanced", time: "6-10 hours", stack: ["AWS (Lambda/ECS + Bedrock) or Azure (Container Apps + Foundry)", "Secrets manager"],
-      goal: "Ship your RAG or chat project as a secure, observable cloud service.",
+      id: "deploy", title: "Deploy an LLM app", level: "Advanced", time: "6-10 hours", stack: ["Docker", "Any container host", "Secrets manager"],
+      goal: "Ship your RAG or chat project as a secure, observable web service.",
       before: [
-        "**Cost:** model calls plus cloud resources. Always-on containers, load balancers and databases bill by the hour even with no traffic: a small demo can cost $1-3 a day if left running.",
-        "**Set budgets first:** a cloud budget alert (AWS Budgets or Azure Cost Management) and a spending limit with the model provider, then tear everything down after demos.",
-        "**Keep keys out of code and git:** store them in Secrets Manager or Key Vault and read them through the service's role or managed identity, so no key appears in code, images or environment files.",
-        "**Free alternative:** deploy with Docker on your own machine first; many clouds have free tiers or credits for new accounts (check what applies to you), and serverless options that scale to zero cost nothing when idle.",
+        "**Cost:** model calls plus hosting. Always-on containers, load balancers and databases bill by the hour even with no traffic: a small demo can cost $1-3 a day if left running.",
+        "**Set budgets first:** a budget alert with your hosting provider and a spending limit with the model provider, then tear everything down after demos.",
+        "**Keep keys out of code and git:** store them in your host's secrets manager and read them at runtime through the service's identity, so no key appears in code, images or environment files.",
+        "**Free alternative:** deploy with Docker on your own machine first; many hosts have free tiers or credits for new accounts (check what applies to you), and serverless options that scale to zero cost nothing when idle.",
       ],
       steps: [
         { do: "Containerize the app and choose a Canadian region where possible",
           see: "`docker run` starts your app locally and it answers a request; your chosen region offers the model you need.",
-          hint: "Check model availability per region in the Bedrock or Foundry docs before building anything else." },
-        { do: "Store API keys and credentials in Secrets Manager / Key Vault, accessed via role or managed identity",
+          hint: "Check which regions your model provider serves before building anything else." },
+        { do: "Store API keys and credentials in a secrets manager, read at runtime through the service's identity",
           see: "The deployed app works, and searching your repo and image for the key finds nothing.",
           hint: "Grant the app's role read access to just that one secret." },
         { do: "Add authentication and per-user rate limiting",
           see: "Requests without a login get 401; a user sending too many requests gets 429.",
-          hint: "Use the platform's built-in auth (e.g. Container Apps authentication or Cognito) rather than writing your own." },
+          hint: "Use your platform's built-in authentication or an identity provider rather than writing your own." },
         { do: "Log tokens, latency, cost and errors per request; build a small dashboard",
-          see: "A dashboard (CloudWatch or Azure Monitor) with requests, p95 latency, tokens and errors over time.",
+          see: "A dashboard (Grafana or your host's monitoring) with requests, p95 latency, tokens and errors over time.",
           hint: "Log one structured JSON line per request; the dashboards can query fields from it." },
         { do: "Add prompt caching and response caching; measure the savings",
           see: "The logs show cache reads, and cost per request drops for repeated questions; write down the before and after numbers.",
@@ -1554,9 +1554,9 @@ class LRUCache:
           see: "A diagram and one page that a security reviewer could read: data flows, where it's stored, who can access it, retention.",
           hint: "Draw boxes for the user, your app, the model provider, the vector store and the logs, with arrows for each data flow." },
       ],
-      resume: "Deployed a containerized LLM application on AWS with secrets in Secrets Manager, authentication, rate limiting, prompt/response caching (-40% cost) and CloudWatch dashboards for tokens, latency and errors.",
+      resume: "Deployed a containerized LLM application with managed secrets, authentication, rate limiting, prompt/response caching (-40% cost) and dashboards for tokens, latency and errors.",
       cost: "Always-on containers, load balancers and model usage all bill. Use budgets, scale to zero where possible, and tear down after demos.",
-      stretch: ["Infrastructure as code (Terraform/Bicep)", "Canary-release prompt versions with eval gates"],
+      stretch: ["Infrastructure as code (Terraform)", "Canary-release prompt versions with eval gates"],
     },
   ],
 

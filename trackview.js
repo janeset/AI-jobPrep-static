@@ -399,8 +399,6 @@ function trTopic(T, st, tid) {
   const exs = t.exercises || [], checks = topicChecks(T, tid);
   const status = exs.length ? `${exPassed(id, t)} / ${exs.length} exercises passed. Your code runs against tests right here; Python loads on first run. Pass every exercise to complete this lesson.`
     : checks.length ? `${checks.filter((q) => st.quiz[q.id] === true).length} / ${checks.length} checks answered correctly. Answer every check correctly to complete this lesson.` : "";
-  const mapTable = t.map ? `<div class="card"><h3>AWS vs Azure</h3><div class="table-wrap"><table><tr><th>Concept</th><th>AWS</th><th>Azure</th></tr>
-    ${t.map.map(([c, a, z]) => `<tr><td>${esc(c)}</td><td><b style="font-weight:500">${esc(a)}</b></td><td><b style="font-weight:500">${esc(z)}</b></td></tr>`).join("")}</table></div></div>` : "";
   const example = t.example ? `<h3>Try it</h3><pre>${esc(t.example)}</pre>
     <div class="row"><button class="btn small" data-trrun="${id}|${tid}">Run this example</button></div><pre id="trrun-${id}-${tid}" class="muted" hidden></pre>` : "";
   const codes = (t.code || []).map((c, k) => `<div class="card"><div class="section-head"><h3>${esc(c.label)}</h3><button class="btn small" data-trcopy="${id}|${tid}|${k}">Copy</button></div>
@@ -409,7 +407,7 @@ function trTopic(T, st, tid) {
   const hasQ = T.questions.some((q) => q.topic === tid), hasQuiz = T.quiz.some((q) => q.topic === tid);
   return `<div class="label">${esc(group)}</div><h2>${esc(t.title)}</h2>${t.zero ? zeroPos(T, t) : ""}
     ${status ? `<p class="muted">${status}</p>` : ""}
-    <div class="card lesson-body">${t.body}${example}</div>${mapTable}${codes}
+    <div class="card lesson-body">${t.body}${example}</div>${codes}
     ${exs.length ? `<div class="label" style="margin:6px 0 8px">Exercises (run in your browser)</div>${exs.map((ex, j) => exerciseCard(id, tid, ex, j, st)).join("")}` : ""}
     ${checks.length ? `<div class="label" style="margin:6px 0 8px">Checks: answer each one correctly to complete this lesson</div>${checks.map((q, n) => checkCard(T, st, q, n + 1)).join("")}` : ""}
     ${t.cards && t.cards.length ? `<div class="card"><h3>Flash cards</h3><p class="muted">Say your answer, then reveal it. These are for review and don't affect completion.</p>${t.cards.map(([q, a], k) => { const key = `${id}:${tid}:${k}`; return `<div class="flash"><div class="row between"><b>${esc(q)}</b>

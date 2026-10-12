@@ -227,7 +227,7 @@ assert fit_history(msgs, 0, words) == []`,
           <li><b>Parameter-efficient fine-tuning (PEFT)</b>, such as <b>LoRA</b> (low-rank adaptation), trains small <i>adapters</i> (a small extra set of parameters added alongside the model) instead of all the weights: far cheaper, and you can keep many adapters for one base model.</li>
           <li><b>Distillation:</b> use a large model's outputs to train a smaller, cheaper, faster model for a narrow task.</li>
           <li><b>You need:</b> hundreds to thousands of high-quality, representative examples, a <b>held-out</b> evaluation set (examples kept out of training), and before/after evals.</li>
-          <li><b>Costs and risks:</b> training and hosting cost, overfitting, losing general skills, and retraining when the base model changes. Not every model can be fine-tuned by customers; check what your provider/cloud offers (Amazon Bedrock, SageMaker AI, Microsoft Foundry).</li>
+          <li><b>Costs and risks:</b> training and hosting cost, overfitting, losing general skills, and retraining when the base model changes. Not every model can be fine-tuned by customers; check what your model provider offers.</li>
           <li>Training data is usually a <b>JSONL</b> file (JSON Lines): one JSON object per line, each holding one example conversation.</li></ul>
         <p class="py-note"><b>Python note:</b> a <b>set</b> holds unique values with fast "is it in here?" checks: <code>seen = set()</code>, <code>seen.add(x)</code>, <code>x in seen</code>. Sets can hold text, numbers and tuples, but not lists or dicts. <code>enumerate(lines, 1)</code> gives (number, item) pairs counting from 1.</p>`,
       example: `import json
@@ -331,8 +331,8 @@ def validate_dataset(lines):
           <li><b>Vision-capable LLMs</b> read screenshots, charts, photos, diagrams and scanned pages, and can reason about them (compare two receipts, explain a dashboard).</li>
           <li><b>PDFs:</b> some APIs accept PDFs directly (text plus page images), useful for forms, contracts and statements.</li>
           <li><b>Sending files:</b> images travel inside the JSON request as <b>base64</b>, a way of writing any binary data (like an image's bytes) as plain letters and digits, along with a <b>media type</b> (a label like <code>image/png</code> that says what kind of file it is).</li>
-          <li><b>Specialized document AI vs LLM vision:</b> for high-volume structured extraction (invoices, IDs, cheques) dedicated services such as Amazon Textract or Azure AI Document Intelligence are cheaper and more predictable; use an LLM when you need reasoning or flexible understanding.</li>
-          <li><b>Audio:</b> transcribe with speech-to-text (Amazon Transcribe / Azure AI Speech), then process the text with an LLM.</li>
+          <li><b>Specialized document AI vs LLM vision:</b> for high-volume structured extraction (invoices, IDs, cheques) dedicated document-AI (OCR and form extraction) services are cheaper and more predictable; use an LLM when you need reasoning or flexible understanding.</li>
+          <li><b>Audio:</b> transcribe with a speech-to-text model or service, then process the text with an LLM.</li>
           <li><b>Cost:</b> images consume tokens roughly in proportion to their resolution (width × height in pixels), so resize to what the task needs.</li>
           <li><b>Privacy:</b> documents often contain personal data (IDs, account numbers): redact, restrict retention, and follow your bank's data policies.</li></ul>
         <p class="py-note"><b>Python note:</b> <code>b"abc"</code> is a <b>bytes</b> value: raw data rather than text, which is what reading an image file gives you. <code>base64.standard_b64encode(data)</code> encodes bytes as base64 bytes, and <code>.decode("utf-8")</code> turns those into text. <code>round(x)</code> rounds to the nearest whole number.</p>`,
@@ -428,95 +428,6 @@ def to_image_block(data, media_type):
         ["Extract fields from 2 million standard invoices a month: LLM vision or a document AI service?", "A document AI service (Textract / Document Intelligence) for cost and consistency at scale, possibly with an LLM for the hard exceptions."],
         ["How do you cut the cost of image inputs?", "Resize or crop images to the resolution the task needs, and avoid sending images when extracted text would do."],
         ["How would you build a meeting-notes assistant?", "Speech-to-text transcription, then an LLM to summarize decisions and action items, with speaker consent and secure storage of recordings."],
-      ],
-    },
-    {
-      id: "cloudai", title: "AI services on AWS & Azure", short: "Cloud",
-      body: `<p>Most enterprises (especially banks and insurers) consume models through their cloud provider for billing, networking, identity and data-residency controls (rules about which country data must stay in). Know the main services and how they map. Product names change often, so check current docs.</p>
-        <ul>
-          <li><b>Foundation models</b> (large models trained on broad data and adapted to many tasks): Amazon Bedrock and Microsoft Foundry (which includes Azure OpenAI) give managed access to models from several providers, including Anthropic's Claude.</li>
-          <li><b>RAG building blocks:</b> Bedrock Knowledge Bases; Azure AI Search for retrieval over your data.</li>
-          <li><b>Safety:</b> Bedrock Guardrails; Azure AI Content Safety, for filtering harmful content and detecting sensitive data.</li>
-          <li><b>Agents:</b> Bedrock Agents (and AgentCore); Foundry Agent Service.</li>
-          <li><b>Classic ML platforms:</b> Amazon SageMaker AI; Azure Machine Learning, for training, fine-tuning and hosting your own models.</li>
-          <li><b>Pre-built AI:</b> Textract / Document Intelligence (documents), Transcribe and Polly / Azure AI Speech, Rekognition / Azure AI Vision, Comprehend / Azure AI Language.</li>
-          <li><b>Enterprise checks:</b> is the model offered in your required <b>region</b> (the data-centre location, like ca-central-1 in Montreal), or only via <b>cross-region inference</b> (the request may be processed in another region)? Private networking (PrivateLink / Private Endpoints, so traffic never crosses the public internet), <b>IAM</b> (identity and access management: who may do what) or Microsoft <b>Entra ID</b> authentication, quotas, logging, and data-retention terms.</li></ul>
-        <p class="py-note"><b>Python note:</b> <code>text.startswith("anthropic.")</code> checks how text begins. A list of tuples like the AWS vs Azure table below can be looped with <code>for concept, aws, azure in rows:</code>.</p>`,
-      example: `rows = [
-    ("Foundation model access", "Amazon Bedrock", "Microsoft Foundry"),
-    ("Managed RAG / retrieval", "Bedrock Knowledge Bases", "Azure AI Search"),
-    ("Document extraction", "Amazon Textract", "Azure AI Document Intelligence"),
-]
-for concept, aws, azure in rows:
-    print(concept + ":", aws, "|", azure)
-
-preferred = ["ca-central-1", "us-east-1"]
-print("first choice:", preferred[0], "(Canada, for data residency)")
-`,
-      map: [["Foundation model access", "Amazon Bedrock", "Microsoft Foundry (incl. Azure OpenAI)"], ["Managed RAG / retrieval", "Bedrock Knowledge Bases", "Azure AI Search"], ["Content safety guardrails", "Bedrock Guardrails", "Azure AI Content Safety"], ["Agents", "Bedrock Agents / AgentCore", "Foundry Agent Service"], ["ML platform", "Amazon SageMaker AI", "Azure Machine Learning"], ["Document extraction", "Amazon Textract", "Azure AI Document Intelligence"], ["Speech", "Transcribe / Polly", "Azure AI Speech"]],
-      code: [{ label: "Calling Claude through Amazon Bedrock or Microsoft Foundry (Anthropic Python SDK)", code: `import os
-from anthropic import AnthropicBedrockMantle, AnthropicFoundry
-
-# Amazon Bedrock: AWS credentials come from your normal AWS config / IAM role.
-bedrock = AnthropicBedrockMantle(aws_region="us-east-1")    # choose a region where the model is offered
-response = bedrock.messages.create(
-    model="anthropic.claude-opus-5-5",                      # Bedrock model IDs carry an "anthropic." prefix
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "Summarize our refund policy in 3 bullets."}],
-)
-
-# Microsoft Foundry: authenticate against your Foundry resource.
-foundry = AnthropicFoundry(api_key=os.environ["FOUNDRY_API_KEY"], resource="my-foundry-resource")
-# then foundry.messages.create(...) with the same request shape` }],
-      exercises: [{
-        key: "model-id", prompt: "Bedrock model IDs carry the provider as a prefix. Write bedrock_model_id(model) that returns model with \"anthropic.\" in front, unless it already starts with \"anthropic.\".",
-        example: `bedrock_model_id("claude-opus-5-5") returns "anthropic.claude-opus-5-5"\nbedrock_model_id("anthropic.claude-opus-5-5") returns it unchanged`,
-        hint: "`if model.startswith(\"anthropic.\"):` return it as is; otherwise return `\"anthropic.\" + model`.",
-        starter: `def bedrock_model_id(model):
-    pass
-`,
-        tests: `assert bedrock_model_id("claude-opus-5-5") == "anthropic.claude-opus-5-5"
-assert bedrock_model_id("anthropic.claude-opus-5-5") == "anthropic.claude-opus-5-5", "don't add the prefix twice"`,
-        solution: `def bedrock_model_id(model):
-    if model.startswith("anthropic."):
-        return model
-    return "anthropic." + model`,
-      }, {
-        key: "equivalent", prompt: "Write azure_for(aws_service, rows): rows is a list of (concept, aws, azure) tuples like the AWS vs Azure table. Return the Azure service on the same row as aws_service, or None if it's not in the table.",
-        example: `azure_for("Amazon Textract", rows) returns "Azure AI Document Intelligence"`,
-        hint: "Loop `for concept, aws, azure in rows:` and return azure when aws matches. After the loop, return None.",
-        starter: `def azure_for(aws_service, rows):
-    pass
-`,
-        tests: `rows = [("Foundation model access", "Amazon Bedrock", "Microsoft Foundry"), ("Document extraction", "Amazon Textract", "Azure AI Document Intelligence")]
-assert azure_for("Amazon Textract", rows) == "Azure AI Document Intelligence"
-assert azure_for("Amazon Bedrock", rows) == "Microsoft Foundry"
-assert azure_for("AWS Glue", rows) is None`,
-        solution: `def azure_for(aws_service, rows):
-    for concept, aws, azure in rows:
-        if aws == aws_service:
-            return azure
-    return None`,
-      }, {
-        key: "region", prompt: "Write pick_region(available, preferred): given the regions where a model is offered and your preferred regions in priority order (e.g. Canadian first), return the first preferred region that's available, or None so the caller can escalate (cross-region inference needs a data-residency review).",
-        example: `pick_region({"us-east-1", "ca-central-1"}, ["ca-central-1", "us-east-1"]) returns "ca-central-1"\npick_region({"eu-west-1"}, ["ca-central-1"]) returns None`,
-        hint: "Loop over preferred in order and return the first one that's `in available`. Return None after the loop.",
-        starter: `def pick_region(available, preferred):
-    pass
-`,
-        tests: `assert pick_region({"us-east-1", "ca-central-1"}, ["ca-central-1", "us-east-1"]) == "ca-central-1"
-assert pick_region({"us-east-1", "us-west-2"}, ["ca-central-1", "us-east-1"]) == "us-east-1"
-assert pick_region({"eu-west-1"}, ["ca-central-1"]) is None`,
-        solution: `def pick_region(available, preferred):
-    for region in preferred:
-        if region in available:
-            return region
-    return None`,
-      }],
-      cards: [
-        ["Why might a bank use Bedrock or Foundry rather than calling a model provider directly?", "Existing cloud contracts and billing, IAM/Entra integration, private networking, centralized logging, regional controls and procurement/compliance already approved for that cloud."],
-        ["Bedrock Knowledge Bases vs building RAG yourself?", "Managed ingestion, chunking, embedding and retrieval for speed of delivery; building your own gives more control over chunking, hybrid search, reranking and evaluation."],
-        ["What must you check before using a model for Canadian customer data?", "Regional availability and data residency, whether cross-region processing is allowed, retention and training terms, encryption, access controls and logging."],
       ],
     },
     {
@@ -652,7 +563,7 @@ def softmax(logits, temperature=1.0):
     ["Foundations", ["mlbasics", "foundations", "tokenization", "sampling", "apis", "prompting", "structured"]],
     ["Retrieval & inputs", ["embeddings", "vectorstores", "rag", "multimodal"]],
     ["Agents", ["tools", "agents"]],
-    ["Quality & production", ["evals", "safety", "llmops", "customization", "cloudai"]],
+    ["Quality & production", ["evals", "safety", "llmops", "customization"]],
   ],
   weeks: [
     { n: 1, title: "ML & LLM foundations", topics: ["mlbasics", "foundations", "tokenization", "sampling"], labs: [], goal: "Explain ML basics and metrics, how LLMs generate text, how tokens and context windows work, and how sampling settings change the output." },
@@ -661,7 +572,7 @@ def softmax(logits, temperature=1.0):
     { n: 4, title: "Retrieval-augmented generation", topics: ["rag"], labs: ["rag"], goal: "Ship a RAG app over your own documents with citations and retrieval metrics." },
     { n: 5, title: "Tool use & agents", topics: ["tools", "agents"], labs: ["agent"], goal: "Build a tool-using assistant with guardrails." },
     { n: 6, title: "Evals, testing & safety", topics: ["evals", "safety"], labs: ["evalharness"], goal: "Build an LLM eval harness that runs automatically on every change; know the responsible-AI frameworks." },
-    { n: 7, title: "Production, customization & cloud AI", topics: ["llmops", "customization", "cloudai"], labs: ["deploy"], goal: "Deploy on AWS or Azure with caching, monitoring and cost limits; know when fine-tuning is worth it." },
+    { n: 7, title: "Production & customization", topics: ["llmops", "customization"], labs: ["deploy"], goal: "Deploy with caching, monitoring and cost limits; know when fine-tuning is worth it." },
     { n: 8, title: "Interview sprint", topics: [], labs: [], goal: "Drill the question bank and quizzes, and polish your projects' READMEs and demos." },
   ],
 
@@ -672,7 +583,6 @@ def softmax(logits, temperature=1.0):
     { id: "q28", topic: "customization", q: "Your team wants to fine-tune a model to answer HR questions. What's your advice?", a: "Start with RAG over the HR policies (facts change, need citations and permissions). Fine-tune only if evals show a persistent style/format gap that prompting can't fix, and keep RAG for the facts." },
     { id: "q29", topic: "customization", q: "What do you need before fine-tuning?", a: "A clear failing behaviour measured by an eval, hundreds to thousands of clean representative examples, a held-out test set, a baseline from prompting/RAG, and a plan for cost, hosting and retraining when the base model changes." },
     { id: "q30", topic: "multimodal", q: "Design a system that reads uploaded bank statements and answers questions about spending.", a: "Store uploads securely; extract transactions with a document AI service (or LLM for unusual layouts); validate totals; store structured transactions; answer questions with an LLM over that data (SQL or tool calls) with citations to statement lines; redact PII and restrict retention." },
-    { id: "q31", topic: "cloudai", q: "Compare Amazon Bedrock and Microsoft Foundry for an enterprise.", a: "Both offer managed access to multiple model providers with cloud-native identity, networking, logging and billing, plus RAG, guardrails and agent tooling. Choose based on the company's primary cloud, model availability in required regions, compliance approvals and existing skills." },
     { id: "q32", topic: "safety", q: "How do you apply responsible AI principles to an LLM feature in a bank?", a: "Fairness testing across customer groups, human review for consequential decisions, transparency that users are interacting with AI, explanations and citations, privacy controls and data minimization, audit logging, documented model limitations, and a clear owner accountable for the system." },
   ],
 
@@ -764,6 +674,5 @@ extendTrack(AI, {
     tokenization: [IBM("-QVoIxEpFkM", "What is a Context Window? Unlocking LLM Secrets")],
     customization: [IBM("00Q0G84kq3M", "RAG vs. Fine Tuning"), IBM("zYGDpG-pTho", "RAG vs Fine-Tuning vs Prompt Engineering: Optimizing AI Models"), IBM("-W2JdSl1v48", "Is Fine-Tuning Still Needed? LLMs, RAG, & LoRA"), IBM("T_X4XFwKX8k", "Reinforcement Learning from Human Feedback (RLHF) Explained")],
     multimodal: [IBM("J51oZYcNvP8", "What is Multimodal AI? How LLMs Process Text, Images, and More"), IBM("lOD_EE96jhM", "What Are Vision Language Models? How AI Sees & Understands Images"), IBM("anLahYrEFiQ", "What is Multimodal RAG? Unlocking LLMs with Vector Databases")],
-    cloudai: [IBM("81FbpXpfxTc", "AI Models as a Service: Powering Agentic AI, Privacy, & RAG"), IBM("RRKwmeyIc24", "What Is an AI Stack? LLMs, RAG, & AI Hardware")],
   },
 });
