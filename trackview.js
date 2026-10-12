@@ -9,11 +9,10 @@ const TRACK_TABS = (id) => TRACKS[id].tabs || [["overview", "Overview"], ["roadm
 const CERT_STATUSES = ["Not planned", "Planning", "Studying", "Booked", "Passed"];
 const TRACK_ICON = {
   ai: `<svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>`,
-  aws: `<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13 7 21l5-2.5L17 21l-1.5-8"/></svg>`,
 };
 
 function sectionOf(t) {
-  const m = /^(ai|aws|roles|interview):/.exec(t);
+  const m = /^(ai|roles|interview):/.exec(t);
   return m ? m[1] : null;
 }
 
@@ -130,9 +129,9 @@ function renderNav() {
   const sub = $("#subnav");
   if (!sub) return;
   if (!sec) { sub.hidden = true; sub.innerHTML = ""; return; }
-  const items = sec === "aws" ? AWS_TABS.map(([k, l]) => ["aws:" + k, l]) : sec === "interview" ? IV_TABS.map(([k, l]) => ["interview:" + k, l]) : TRACK_TABS(sec).map(([k, l]) => [sec + ":" + k, l]);
+  const items = sec === "interview" ? IV_TABS.map(([k, l]) => ["interview:" + k, l]) : TRACK_TABS(sec).map(([k, l]) => [sec + ":" + k, l]);
   sub.hidden = false;
-  sub.innerHTML = `<div class="subnav-inner"><span class="subnav-title t-${sec}">${TRACK_ICON[sec]}${sec === "aws" ? "AWS Certs" : sec === "interview" ? "Interview" : esc(TRACKS[sec].name)}</span>
+  sub.innerHTML = `<div class="subnav-inner"><span class="subnav-title t-${sec}">${TRACK_ICON[sec]}${sec === "interview" ? "Interview" : esc(TRACKS[sec].name)}</span>
     <div class="subnav-tabs">${items.map(([k, l]) => `<button data-tab="${k}" class="${k === tab ? "active" : ""}">${esc(l)}</button>`).join("")}</div></div>`;
 }
 // The page a top-level section opens on the first time.
@@ -200,14 +199,14 @@ function homeView() {
     </section>
     ${S.level ? "" : levelPick()}
     ${zeroHomeCard()}
-    <div class="track-grid">${trackCard("ai")}${awsHomeCard()}${rolesHomeCard()}</div>
+    <div class="track-grid">${trackCard("ai")}${rolesHomeCard()}</div>
     <div class="cols-2">
       <div class="card"><h3>A sustainable weekly rhythm</h3>
         <table><tr><th>Day</th><th>Focus</th></tr>
           <tr><td>Mon / Wed</td><td>One lesson + its exercises (60 min)</td></tr>
           <tr><td>Tue / Thu</td><td>Project work: build, evaluate, write it up (60-90 min)</td></tr>
           <tr><td>Fri</td><td>Interview questions out loud, or a mock interview (45 min)</td></tr>
-          <tr><td>Sat</td><td>The lesson videos for the week's topic, or an AWS practice set (45 min)</td></tr>
+          <tr><td>Sat</td><td>The lesson videos for the week's topic, or a practice quiz (45 min)</td></tr>
           <tr><td>Sun</td><td>Light review: glossary, flash cards, plan the week</td></tr></table>
         <p class="muted">Employers want evidence: a deployed RAG or agent project with an eval harness beats any certificate.</p></div>
       <div class="card"><div class="section-head"><h3>Your ${T.weeks.length} weeks</h3><button class="btn small ghost" data-trgo="ai|roadmap|">Roadmap &rarr;</button></div><div class="list">
@@ -215,15 +214,6 @@ function homeView() {
         ${T.weeks.map((w) => `<div class="li"><div><span class="t">Week ${w.n}</span><div class="muted">${esc(w.title)}</div></div>${w.n === wk ? '<span class="badge accent">This week</span>' : ""}</div>`).join("")}
       </div>${s.start ? "" : `<p class="muted">Start the plan from the track card to track your current week.</p>`}</div>
     </div>`;
-}
-
-function awsHomeCard() {
-  const rows = AWS_EXAMS.map((e) => { const r = readiness(e); return `<div class="li"><div><span class="t">${esc(e.code)}</span><div class="muted">${esc(e.level)} · best ${r.best ? r.best + "%" : "-"}</div></div>
-    <div class="bar" style="width:70px;margin:0"><i style="width:${Math.round(r.pct * 100)}%"></i></div></div>`; }).join("");
-  return `<div class="card track-card t-aws">
-    <div class="tc-head"><span class="tc-icon">${TRACK_ICON.aws}</span><div><h3>AWS Certs</h3><p class="muted">Exam prep for AI Practitioner (AIF-C01) and Generative AI Developer Professional (AIP-C01)</p></div></div>
-    <div class="list">${rows}</div>
-    <div class="row"><button class="btn primary" data-track-go="aws">Continue &rarr;</button></div></div>`;
 }
 
 // ---------------- track pages ----------------
@@ -512,8 +502,7 @@ function trCerts(T, st) {
         <div class="label" style="margin-top:10px">Covered in Learn</div><div>${c.topics.map((tid) => `<button class="tag tag-btn" ${goLearn(id, tid)}>${esc(topicById(T, tid).title)}</button>`).join("")}</div>
         <div class="row" style="margin-top:12px"><select data-trcert="${id}|${c.id}">${CERT_STATUSES.map((v) => `<option ${v === (s.status || "Not planned") ? "selected" : ""}>${v}</option>`).join("")}</select>
           <input type="date" data-trcertdate="${id}|${c.id}" value="${esc(s.date || "")}" title="Exam date"></div>
-        <div class="row" style="margin-top:12px">${AWS_EXAMS.some((x) => x.code === c.code) ? `<button class="btn small primary" data-awsgo="${AWS_EXAMS.find((x) => x.code === c.code).id}">Open exam prep &rarr;</button>` : ""}
-          ${T.quiz.some((q) => q.tags.includes(c.tag)) ? `<button class="btn small ${AWS_EXAMS.some((x) => x.code === c.code) ? "" : "primary"}" data-tqtag="${id}|${c.tag}">Practice questions</button>` : ""}
+        <div class="row" style="margin-top:12px">${T.quiz.some((q) => q.tags.includes(c.tag)) ? `<button class="btn small primary" data-tqtag="${id}|${c.tag}">Practice questions</button>` : ""}
           <a class="btn small ghost" href="${c.link}" target="_blank" rel="noopener">Official page &nearr;</a></div></div>`;
     }).join("")}</div>
     <div class="card"><h3>Full certification courses</h3>${vids(T.videos.courses)}</div>`;

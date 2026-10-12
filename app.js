@@ -177,7 +177,6 @@ let tab = "home";
 function render() {
   const sec = sectionOf(tab);
   if (sec === "ai") $("#view").innerHTML = trackView(sec, tab.split(":")[1]);
-  else if (sec === "aws") $("#view").innerHTML = awsView(tab.split(":")[1]);
   else if (sec === "roles") $("#view").innerHTML = roleView(tab.split(":")[1]);
   else if (sec === "interview") $("#view").innerHTML = interviewView(tab.split(":")[1]);
   else $("#view").innerHTML = (views[tab] || views.home)();

@@ -1,5 +1,5 @@
 "use strict";
-// URL routing: every page has an address (#/ai/learn/rag, #/aws/aif, #/roles/postings),
+// URL routing: every page has an address (#/ai/learn/rag, #/interview/mock, #/roles/postings),
 // so refresh keeps your place, Back/Forward work and any page can be bookmarked.
 // The URL is derived from app state after each render; handlers keep setting `tab` and the
 // selection as before and never touch the URL themselves.
@@ -17,7 +17,7 @@ function currentPath() {
     if (sub === "ibm" && st.ibmSel && st.ibmSel !== "overview") return `${sec}/ibm/${st.ibmSel}`;
     return `${sec}/${sub}`;
   }
-  if (sec === "aws" || sec === "interview") return `${sec}/${sub}`;
+  if (sec === "interview") return `${sec}/${sub}`;
   return tab;
 }
 
@@ -31,7 +31,7 @@ function applyPath(hash) {
     tab = `${a}:${b || "overview"}`;
     if (b === "learn") trState(a).sel = c ? resolveLesson(TRACKS[a], c) || c : null;
     if (b === "ibm") trState(a).ibmSel = parts.slice(2).join("/") || "overview";
-  } else if (a === "aws" || a === "interview") tab = `${a}:${b || "overview"}`;
+  } else if (a === "interview") tab = `${a}:${b || "overview"}`;
   else if (SIMPLE_TABS.includes(a)) tab = a;
   else tab = "home";
   const s = sectionOf(tab);

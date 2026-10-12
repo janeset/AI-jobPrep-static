@@ -6,7 +6,7 @@
 const SEARCH_TYPES = [
   // [type, label, weight]: weight breaks ties between equally good matches
   ["lesson", "Lessons", 6], ["question", "Interview questions", 4], ["lab", "Labs & projects", 4], ["skill", "Role skills", 4], ["posting", "Postings", 4],
-  ["aws", "AWS certs", 3], ["story", "Your stories", 3], ["video", "IBM videos", 1],
+  ["story", "Your stories", 3], ["video", "IBM videos", 1],
 ];
 const stripHtml = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&[#\w]+;/g, " ").replace(/\s+/g, " ").trim();
 
@@ -33,12 +33,6 @@ function buildSearchIndex() {
       const b = document.querySelector(`[data-trshow="${id}:${q.id}"]`); if (b) b.closest(".card").classList.add("flash");
     }));
     T.labs.forEach((l) => add("lab", l.title, `${T.name} · ${T.labsName}`, (l.goal || "") + " " + (l.stack || ""), () => { views._trlab = l.id; go(id + ":labs"); revealEl("#lab-" + l.id); }));
-  });
-
-  // AWS certs
-  AWS_EXAMS.forEach((e) => {
-    add("aws", `${e.code} ${e.name}`, "AWS certification", e.who || "", () => go("aws:" + e.id));
-    e.domains.forEach((d) => add("aws", d.name, `${e.code} · Domain ${d.n} (${d.weight}%)`, stripHtml(d.know) + " " + (d.services || []).join(" "), () => go("aws:" + e.id)));
   });
 
   // Roles: skills and postings
