@@ -653,3 +653,9 @@ pre[id^="trres-"], pre[id^="trrun-"] { white-space: pre-wrap; }
 .course-list a:hover b { text-decoration: underline; }
 .eligibility { margin-bottom: 0; }
 .zero-note { margin: 0 0 10px; }
+
+/* Home: one large first action; stats only after the first passed exercise */
+.btn.btn-lg { padding: 12px 22px; font-size: 1.05rem; }
+.home-stats { margin-bottom: var(--gap); }
+.local-toggle { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.local-toggle input { margin-top: 4px; }

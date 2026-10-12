@@ -14,7 +14,7 @@ const skillById = (id) => SKILLS.find((s) => s.id === id);
 // this version doesn't cover (e.g. imported from the combined Prep Hub, or the removed AI Cloud Engineer
 // role) are left out, and skills that no longer exist are dropped from the rest.
 const knownSkills = (ids) => (ids || []).filter((id) => skillById(id));
-const allPostings = () => POSTINGS.concat(S.myPostings || []).filter((p) => roleById(p.role))
+const allPostings = () => POSTINGS.filter((p) => !p.local || S.localMarket).concat(S.myPostings || []).filter((p) => roleById(p.role))
   .map((p) => (p.required.every(skillById) && p.preferred.every(skillById) ? p : Object.assign({}, p, { required: knownSkills(p.required), preferred: knownSkills(p.preferred) })));
 const roleName = (id) => (id === "all" ? "All roles" : roleById(id).name);
 
@@ -155,7 +155,7 @@ function rlPostings(st) {
   const posts = allPostings().filter((p) => st.role === "all" || p.role === st.role).slice().sort((a, b) => b.added.localeCompare(a.added));
   const d = views._rlDraft;
   return roleSwitch(st) + pageHead(`Postings · ${esc(roleName(st.role))} <span class="muted">${posts.length}</span>`, "Real job postings behind this section. Fit is your weighted coverage of each posting's required (x2) and preferred skills.") +
-    (d ? rlForm(d) : `<div class="row" style="margin-bottom:var(--gap)"><button class="btn primary" data-rldnew>+ Add a posting</button><span class="muted">Paste a posting, confirm the skills it asks for, and every number in Roles updates.</span></div>`) +
+    localMarketToggle() + (d ? rlForm(d) : `<div class="row" style="margin-bottom:var(--gap)"><button class="btn primary" data-rldnew>+ Add a posting</button><span class="muted">Paste a posting, confirm the skills it asks for, and every number in Roles updates.</span></div>`) +
     (posts.length ? posts.map((p) => {
       const fit = postingFit(p), entry = trackerEntry(p);
       return `<div class="card posting" id="posting-${esc(p.id)}">
@@ -205,7 +205,7 @@ function rlForm(d) {
     <div class="section-head"><h3 style="margin:0">${d.id ? "Edit posting" : "Add a posting"}</h3><button class="btn small ghost" data-rldcancel>Cancel</button></div>
     <div class="form-grid">
       <label class="fld"><span>Role <b class="M">*</b></span><select data-rld="role">${ROLE_DEFS.map((r) => `<option value="${r.id}" ${d.role === r.id ? "selected" : ""}>${esc(r.name)}</option>`).join("")}</select></label>
-      ${field("company", "Company", "e.g. Shopify", true)}${field("title", "Job title", "e.g. AI Engineer", true)}${field("location", "Location", "e.g. Toronto, ON")}
+      ${field("company", "Company", "e.g. Shopify", true)}${field("title", "Job title", "e.g. AI Engineer", true)}${field("location", "Location", "e.g. City, region")}
       <label class="fld"><span>Work mode</span><select data-rld="mode">${["", "On-site", "Hybrid", "Remote"].map((m) => `<option value="${m}" ${d.mode === m ? "selected" : ""}>${m || "Not stated"}</option>`).join("")}</select></label>
       ${field("pay", "Pay", "e.g. $120,000 - $140,000")}${field("seniority", "Seniority", "e.g. 3+ years")}${field("link", "Link", "https://...")}
     </div>

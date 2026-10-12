@@ -108,6 +108,11 @@ const TIERS = [
   },
 ];
 
+// The optional local job market (Toronto & Kitchener-Waterloo): example employers on Companies and the
+// built-in local postings in Roles. Off by default; one setting shared by both pages.
+const localMarketToggle = () => `<label class="card check local-toggle"><input type="checkbox" data-localmkt ${S.localMarket ? "checked" : ""}>
+  <span><b>Show the Toronto &amp; Kitchener-Waterloo job market</b><br><span class="muted">Adds local example employers on Companies and built-in local postings in Roles.</span></span></label>`;
+
 // Tips shown on the Interview setup page.
 const MOCK_TIPS = [
   "Restate the question and say what you'd clarify (users, data, latency, cost, risk).",
@@ -124,11 +129,12 @@ const views = {
   claude() { return claudeView(); },
 
   companies() {
-    const tierName = (id) => (TIERS.find((t) => t.id === +id) || { name: "" }).name;
-    return pageHead("Companies", "Toronto &amp; Kitchener-Waterloo. Tiers are general guidance, not inside information: check recent postings and interview reports (Glassdoor, Levels.fyi) for each employer.") + `
+    const tierName = (id) => (TIERS.find((t) => t.id === +id) || { name: "" }).name, local = !!S.localMarket;
+    return pageHead("Companies", "What AI interviews look like at each kind of employer. Tiers are general guidance, not inside information: check recent postings and interview reports (Glassdoor, Levels.fyi) for each employer.") + `
+    ${localMarketToggle()}
     ${TIERS.map((t) => `<div class="card"><div class="row between"><h3 style="margin:0">${esc(t.name)}</h3><span class="pill">${esc(t.bar)}</span></div>
       <p>${esc(t.emphasis)}</p>
-      <p><b>Examples:</b> ${t.names.map((n) => `<span class="tag">${esc(n)}</span>`).join("")}</p></div>`).join("")}
+      ${local ? `<p><b>Toronto &amp; KW examples:</b> ${t.names.map((n) => `<span class="tag">${esc(n)}</span>`).join("")}</p>` : ""}</div>`).join("")}
     <div class="card"><h3 style="margin-top:0">My application tracker</h3>
       <div class="row"><input id="c-name" placeholder="Company"><select id="c-tier">${TIERS.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join("")}</select>
       <button class="btn primary" id="c-add">Add</button></div>
@@ -225,6 +231,7 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("change", (e) => {
   const t = e.target;
+  if ("localmkt" in t.dataset) { S.localMarket = t.checked; searchIndex = null; save(); return rerender(); }
   if (t.dataset.cstatus) { S.companies[+t.dataset.cstatus].status = t.value; save(); }
   else if (t.dataset.cnote) { S.companies[+t.dataset.cnote].note = t.value; save(); }
   else if (t.id === "s-import" && t.files[0]) {

@@ -161,7 +161,7 @@ function zeroHomeCard() {
       <div class="list">${ls.map((t, i) => `<div class="li"><div><span class="t">${i + 1}. ${esc(t.title)}</span><div class="muted">${exPassed("ai", t)} / ${t.exercises.length} exercises</div></div>
         <div class="row">${topicDone(T, t) ? '<span class="badge done">Done</span>' : ""}<button class="btn small" ${goLearn("ai", t.id)}>Open</button></div></div>`).join("")}</div></div>`;
   };
-  return `<div class="card zero-card ${opt ? "optional" : ""}"><div class="section-head"><h3 style="margin:0">${opt ? "Beginner lessons (optional)" : "Start here: the beginner lessons"}</h3></div>
+  return `<div class="card zero-card ${opt ? "optional" : ""}"><div class="section-head"><h3 style="margin:0">${opt ? "AI from zero (optional)" : "AI from zero: the beginner lessons"}</h3></div>
     <p class="muted">${opt ? "Skip these if you know the basics, or use them to fill gaps: what models, training and LLMs are, in plain language." : "No machine-learning background needed. Each lesson explains one idea step by step with a worked example, then gives you small exercises that run right here in the browser, each with an example, a hint and a model answer. Nothing needs an API key."}</p>
     ${ZERO_PY_NOTE}${part("ai")}</div>`;
 }
@@ -171,9 +171,11 @@ function homeView() {
   const dateStr = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
   const st = streak(), todayCount = S.activity[today()] || 0;
   const T = TRACKS.ai, s = trState("ai"), wk = trackWeek("ai"), next = pathNext(T);
-  const fresh = !Object.keys(S.activity).length;
-  const main = next ? `<button class="btn primary" ${goLearn("ai", next.id)}>${fresh ? "Start here" : "Continue"}: ${esc(next.title)} &rarr;</button>`
-    : `<button class="btn primary" data-trgo="ai|quiz|">Every lesson done. Take a quiz &rarr;</button>`;
+  // Before the first passed exercise, Home shows one action (Start here) and no zero-valued stats.
+  const started = Object.values(S.tr || {}).some((x) => Object.keys((x && x.ex) || {}).length);
+  const main = !next ? `<button class="btn primary" data-trgo="ai|quiz|">Every lesson done. Take a quiz &rarr;</button>`
+    : started ? `<button class="btn primary" ${goLearn("ai", next.id)}>Continue: ${esc(next.title)} &rarr;</button>`
+    : `<button class="btn primary btn-lg" ${goLearn("ai", next.id)}>Start here &rarr;</button><span class="muted">First lesson: ${esc(next.title)}</span>`;
 
   const trackCard = (id) => {
     const T = TRACKS[id], s = trState(id), p = trackProgress(id), wk = trackWeek(id);
@@ -189,17 +191,16 @@ function homeView() {
 
   return `<section class="card hero home-hero">
       <div style="position:relative;z-index:1">
-        <div class="eyebrow">${esc(dateStr)} · Toronto &amp; Kitchener-Waterloo</div>
+        <div class="eyebrow">${esc(dateStr)}</div>
         <h1>${hello}.</h1>
-        <p>AI engineering prep for LLM roles. ${beginnerLevel() ? "Start from zero with AI basics, then" : "Work through"} ${T.topics.filter((t) => !t.zero).length} topics with worked examples and Python exercises that are checked in your browser, an 8-week plan with hands-on projects, IBM Technology videos, AWS AI certification practice, and the skills real AI Engineer postings ask for.</p>
-        <div class="row" style="margin-top:14px">${main}
-          <span class="badge plain">&#128293; ${st} day streak</span><span class="badge plain">${todayCount} thing${todayCount === 1 ? "" : "s"} done today</span>
-        </div>
+        <p>AI engineering prep for LLM roles: short lessons with Python exercises checked right in your browser, then hands-on projects. No API key needed to start.</p>
+        <div class="row" style="margin-top:14px">${main}</div>
       </div>
     </section>
     ${S.level ? "" : levelPick()}
+    ${started ? `<div class="row home-stats"><span class="badge plain">&#128293; ${st} day streak</span><span class="badge plain">${todayCount} thing${todayCount === 1 ? "" : "s"} done today</span></div>` : ""}
     ${zeroHomeCard()}
-    <div class="track-grid">${trackCard("ai")}${rolesHomeCard()}</div>
+    ${started ? `<div class="track-grid">${trackCard("ai")}${rolesHomeCard()}</div>` : ""}
     <div class="cols-2">
       <div class="card"><h3>A sustainable weekly rhythm</h3>
         <table><tr><th>Day</th><th>Focus</th></tr>

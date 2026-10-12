@@ -1,6 +1,6 @@
 # AI / LLM Prep
 
-AI engineering prep for LLM roles around Toronto and Kitchener-Waterloo: an 8-week track with
+AI engineering prep for LLM roles: an 8-week track with
 runnable Python exercises and projects, IBM Technology videos,
 and the skills real AI Engineer postings ask for. No build step, no backend: plain HTML, CSS and
 JavaScript. One of four Job Preps apps, each in its own repo: DSA Prep, Cloud Prep, AI / LLM Prep and System Design Prep.
@@ -17,13 +17,13 @@ Then visit http://localhost:5176. Opening `index.html` directly also works, but 
 
 | Page | What it does |
 | --- | --- |
-| Home | "Where are you starting from?" (new to AI, or know the basics), a Start here / Continue button to the next unfinished lesson, the beginner lessons, track progress, role readiness, a weekly rhythm and the 8 weeks at a glance |
+| Home | One **Start here** button above the fold (it opens the first lesson), "Where are you starting from?" (New to AI, or I know the AI basics) and the beginner lessons. Streak, today's count, track progress and role readiness appear once you pass your first exercise; then Start here becomes Continue. Also a weekly rhythm and the 8 weeks at a glance |
 | AI / LLM | Overview, roadmap, lessons, interview question bank, exam-style quiz, projects with resume bullets, certification paths. Learn starts with **AI from zero** (5 lessons for people with no ML background; optional for people who know the basics; the exercises use a little Python, so learn the basics elsewhere first), then 18 topics. Every lesson has a worked example you can run and at least 3 Python exercises checked in the browser, each with an example, a hint and a model answer; nothing needs an API key. A lesson is complete when all its exercises pass (Roles lessons without code: when all their checks are answered correctly). Projects are self-reported, with what to do, what you should see and a hint for each step, and a cost / API-key note before each project |
 | Claude & Anthropic | Anthropic's official courses in learning order (AI Fluency: Framework & Foundations, Claude 101, Building with the Claude API, then the two MCP courses), the four Claude certifications with Anthropic's Partner Network eligibility note, and the OpenAI Academy courses. Every entry links to the official page and shows a "last verified" date. Also in AI / LLM > Learn (sidebar) and on the Certs page |
 | AI / LLM > IBM Videos | Every IBM Technology playlist playable in the app with done-tracking and links to matching lessons, an expandable list of every video in each playlist, the IBM videos picked for each lesson, and a title search |
 | Interview | Timed mock interviews (technical questions for AI Engineer, plus behavioural) with self-scoring; weak answers are flagged "Review again" in the question bank. STAR story bank with theme and skill coverage; history |
 | Roles | AI Engineer: skill demand across postings, self-rating and readiness, per-posting fit and prep notes, an **Add posting** form with skill suggestions, gap lessons, questions, quiz and projects |
-| Companies | What AI interviews look like at each tier of local employer, and an application tracker linked to postings |
+| Companies | What AI interviews look like at each tier of employer, and an application tracker linked to postings. The Toronto & Kitchener-Waterloo job market (example employers here, built-in local postings in Roles) is an optional setting, off by default, on Companies and Roles > Postings |
 | Settings | 9 themes, accent colour, text size, density, where you're starting from, plan start date, export / import |
 | Search | **Ctrl+K** (or **/**) searches lessons, Claude & Anthropic courses and certifications, questions, projects, role skills, postings, IBM videos and your stories |
 

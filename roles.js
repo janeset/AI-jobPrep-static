@@ -2,6 +2,9 @@
 // grow as postings are added: the role definitions, the shared skill catalog and the postings.
 // Lessons, questions, quiz and projects live in roles-learn.js; the pages in roleview.js.
 //
+// Postings with `local: true` belong to the optional Toronto & KW job market and only show when that
+// setting is on (Roles > Postings or Companies).
+//
 // Adding a posting: append to POSTINGS below with its role, then list the skill ids it asks for
 // under `required` (must-haves and core duties) and `preferred` (nice-to-haves). Add a new skill
 // to SKILLS only when no existing one fits, and a new lesson only for real gaps.
@@ -108,7 +111,7 @@ const SKILL_KEYWORDS = {
 
 const POSTINGS = [
   {
-    id: "eclipse-ai-swe", role: "ai", tier: 3,
+    id: "eclipse-ai-swe", role: "ai", tier: 3, local: true,
     company: "Eclipse Automation", title: "AI Software Engineer",
     location: "Cambridge, ON", mode: "On-site", pay: "$130,000 - $155,000", seniority: "5+ years",
     added: "2026-10-06", link: "https://jobs.dayforcehcm.com/en-CA/eclipse/CANDIDATEPORTAL",
