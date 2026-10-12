@@ -27,7 +27,7 @@ Then visit http://localhost:5176. Opening `index.html` directly also works, but 
 | Settings | 9 themes, accent colour, text size, density, where you're starting from, plan start date, export / import |
 | Search | **Ctrl+K** (or **/**) searches lessons, Claude & Anthropic courses and certifications, questions, projects, role skills, postings, IBM videos and your stories |
 
-Python exercises are auto-graded in the browser via [Pyodide](https://pyodide.org) (loaded from a CDN on first run). Exercises have a stable `key`; progress is saved under it, so exercises can be reordered without moving anyone's progress.
+Python exercises are auto-graded in the browser via [Pyodide](https://pyodide.org) (loaded from a CDN on first run, with a loading message and a 30-second timeout). Each exercise says above its code box to replace the `pass` placeholder; typing on that line replaces it, and an untouched starter is not run. Exercises have a stable `key`; progress is saved under it, so exercises can be reordered without moving anyone's progress.
 
 ## Files
 

@@ -378,7 +378,8 @@ function exerciseCard(id, tid, ex, j, st) {
   return `<div class="card ex-card"><h3 class="ex-title">Exercise ${j + 1}${st.ex[key] ? ' <span class="badge done">Passed</span>' : ""}</h3>
     <p>${md(ex.prompt)}</p>
     ${ex.example ? `<div class="ex-example"><div class="label">Example</div><pre>${esc(ex.example)}</pre></div>` : ""}
-    <textarea data-trcode="${ref}" rows="${Math.max(5, ex.starter.split("\n").length + 2)}" spellcheck="false" aria-label="Your code for exercise ${j + 1}">${esc(S.code["tx:" + key] ?? ex.starter)}</textarea>
+    <p class="ex-instr" id="instr-${rid}">Replace the placeholder (<code>pass</code>) with your code, then press <b>Run tests</b>.</p>
+    <textarea data-trcode="${ref}" aria-describedby="instr-${rid}" rows="${Math.max(5, ex.starter.split("\n").length + 2)}" spellcheck="false" aria-label="Your code for exercise ${j + 1}">${esc(S.code["tx:" + key] ?? ex.starter)}</textarea>
     <div class="row"><button class="btn primary small" data-trex="${ref}">Run tests</button><button class="btn small" data-trexreset="${ref}">Reset</button></div>
     <pre id="${rid}" class="muted" style="display:none"></pre>
     ${ex.hint ? `<details class="ex-help"><summary>Hint</summary><p>${md(ex.hint)}</p></details>` : ""}
@@ -514,10 +515,16 @@ const exByKey = (id, tid, key) => (topicById(TRACKS[id], tid).exercises || []).f
 async function runTrackExercise(id, tid, k) {
   const ex = exByKey(id, tid, k), key = exKey(id, tid, ex), rid = `trres-${id}-${tid}-${k}`;
   const code = document.querySelector(`[data-trcode="${id}|${tid}|${k}"]`).value;
-  S.code["tx:" + key] = code; save();
   const res = document.getElementById(rid);
-  res.style.display = "block"; res.className = "muted"; res.textContent = "Running... (Python loads on first run)";
-  const { out, err } = await execPy(code + "\n\n" + ex.tests, true);
+  // The untouched starter is only a placeholder: don't run it, say what to do instead.
+  if (code.trim() === ex.starter.trim()) {
+    res.style.display = "block"; res.className = "M"; res.textContent = "Replace the placeholder (pass) with your code first, then press Run tests.";
+    return;
+  }
+  S.code["tx:" + key] = code; save();
+  res.style.display = "block"; res.className = "muted"; res.textContent = pyStatus();
+  const { out, err, loadErr } = await execPy(code + "\n\n" + ex.tests, true);
+  if (loadErr) { res.textContent = err; res.className = "M"; return; }
   if (err) { res.textContent = "Not yet:\n" + err + (out ? "\n\nOutput:\n" + out : "") + (ex.hint ? "\n\nStuck? Open the hint below." : ""); res.className = "M"; return; }
   const st = trState(id);
   if (!st.ex[key]) bump();
@@ -527,7 +534,7 @@ async function runTrackExercise(id, tid, k) {
 }
 async function runTrackExample(id, tid) {
   const t = topicById(TRACKS[id], tid), box = document.getElementById(`trrun-${id}-${tid}`);
-  box.hidden = false; box.className = "muted"; box.textContent = "Running... (Python loads on first run)";
+  box.hidden = false; box.className = "muted"; box.textContent = pyStatus();
   const { out, err } = await execPy(t.example, true);
   box.className = err ? "M" : ""; box.textContent = (out || "") + (err ? "Error: " + err : "") || "(no output)";
 }
@@ -612,6 +619,39 @@ document.addEventListener("change", (e) => {
   if (d.trcert) { const [id, cid] = d.trcert.split("|"), st = trState(id); st.certs[cid] = Object.assign({}, st.certs[cid], { status: t.value }); if (t.value === "Passed") bump(); save(); return; }
   if (d.trcertdate) { const [id, cid] = d.trcertdate.split("|"), st = trState(id); st.certs[cid] = Object.assign({}, st.certs[cid], { date: t.value }); save(); return; }
   if (d.trstartdate) { const st = trState(d.trstartdate); st.start = t.value || null; save(); return render(); }
+});
+
+// Placeholder lines in exercise starters are a bare `pass`. Typing while the caret is on one replaces it, so
+// the placeholder never lingers next to real code; a keyboard user tabbing into an untouched box lands on it.
+const PLACEHOLDER = /^([ \t]*)pass[ \t]*$/m;
+function placeholderRange(ta) {
+  const lines = ta.value.split("\n");
+  let at = 0;
+  for (const line of lines) {
+    const m = PLACEHOLDER.exec(line);
+    if (m) {
+      const from = at + m[1].length, to = at + line.length;
+      if (ta.selectionStart >= at && ta.selectionEnd <= to) return [from, to];
+    }
+    at += line.length + 1;
+  }
+  return null;
+}
+document.addEventListener("beforeinput", (e) => {
+  const ta = e.target;
+  if (!ta.dataset || !ta.dataset.trcode || !/^(insert|delete)/.test(e.inputType) || /LineBreak|Paragraph/.test(e.inputType)) return;
+  const r = placeholderRange(ta);
+  if (r) ta.setSelectionRange(r[0], r[1]);
+});
+document.addEventListener("focusin", (e) => {
+  const ta = e.target, d = ta.dataset || {};
+  if (!d.trcode) return;
+  const [id, tid, k] = d.trcode.split("|"), ex = exByKey(id, tid, k);
+  if (ta.value !== ex.starter) return;
+  // Only for keyboard focus: a mouse click places its own caret after this event.
+  if (ta.matches(":focus-visible")) {
+    const i = ta.value.search(PLACEHOLDER); if (i >= 0) { const m = PLACEHOLDER.exec(ta.value); ta.setSelectionRange(i + m[1].length, i + m[0].length); }
+  }
 });
 
 document.addEventListener("input", (e) => {

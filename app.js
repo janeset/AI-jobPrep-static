@@ -66,17 +66,33 @@ const vids = (list) => !list || !list.length ? "" : `<div class="vgrid">${list.m
 const yt = (q) => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
 
 // ---------- Python in the browser (lesson exercises) ----------
-let pyodide = null;
-async function ensurePy() {
-  if (pyodide) return pyodide;
+let pyodide = null, pyLoading = null;
+const PY_TIMEOUT_S = 30;
+async function loadPy() {
   if (!window.loadPyodide) await new Promise((res, rej) => {
     const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"; s.onload = res; s.onerror = () => rej(new Error("Could not load Pyodide (offline?)"));
+    s.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"; s.onload = res;
+    s.onerror = () => { s.remove(); rej(new Error("Could not load Python (Pyodide). Check your connection, then press Run again.")); };
     document.head.appendChild(s);
   });
   return (pyodide = await loadPyodide());
 }
-// Runs code (optionally in a fresh namespace); resolves { out, err } and never throws.
+// Loads Python once. Gives up with a clear message after PY_TIMEOUT_S (a slow load that finishes later is
+// still kept, so the next Run works); a failed load can be retried.
+async function ensurePy() {
+  if (pyodide) return pyodide;
+  if (!pyLoading) {
+    let timer;
+    const timeout = new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`Python didn't load within ${PY_TIMEOUT_S} seconds. Check your connection, then press Run again.`)), PY_TIMEOUT_S * 1000); });
+    const load = loadPy();
+    load.catch(() => {});
+    pyLoading = Promise.race([load, timeout]).finally(() => { clearTimeout(timer); pyLoading = null; });
+  }
+  return pyLoading;
+}
+// What to show while code runs: loading Python is the slow part, and only happens once.
+const pyStatus = () => (pyodide ? "Running..." : `Loading Python... (first run only; this can take up to ${PY_TIMEOUT_S} seconds)`);
+// Runs code (optionally in a fresh namespace); resolves { out, err, loadErr } and never throws. loadErr: Python itself didn't load.
 async function execPy(code, fresh) {
   let out = "", err = "";
   try {
@@ -85,7 +101,7 @@ async function execPy(code, fresh) {
     py.setStderr({ batched: (t) => (out += t + "\n") });
     try { await py.runPythonAsync(code, fresh ? { globals: py.globals.get("dict")() } : undefined); }
     catch (e) { err = String(e.message || e).trim().split("\n").filter(Boolean).slice(-1)[0]; }
-  } catch (e) { err = e.message; }
+  } catch (e) { return { out, err: e.message, loadErr: true }; }
   return { out, err };
 }
 
