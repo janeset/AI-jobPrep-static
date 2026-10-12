@@ -275,7 +275,7 @@ function trOverview(T, st) {
         <p class="muted">${esc(w.goal)}</p>
         ${!wk && beginnerLevel() && zeroLessons(T).some((t) => !topicDone(T, t)) ? `<p class="muted">New to AI? Do <button class="link-btn inline-link" ${goLearn(id, zeroLessons(T)[0].id)}>AI from zero</button> first.</p>` : ""}
         <div class="list">${w.topics.map((t) => topicRow(T, st, t)).join("")}${w.labs.map((l) => labRow(T, T.labs.find((x) => x.id === l))).join("")}
-          ${!w.topics.length && !w.labs.length ? `<div class="li"><span>Review week: quizzes, the question bank and certification prep.</span><button class="btn small" data-trgo="${id}|quiz|">Quiz</button></div>` : ""}</div></div>
+          ${!w.topics.length && !w.labs.length ? `<div class="li"><span>Review week: quizzes and the question bank.</span><button class="btn small" data-trgo="${id}|quiz|">Quiz</button></div>` : ""}</div></div>
       <div class="card"><div class="section-head"><h3>Certifications</h3><button class="btn small ghost" data-trgo="${id}|certs|">All certs &rarr;</button></div>
         <div class="list">${T.certs.map((c) => `<div class="li"><div><span class="t">${esc(c.code)}</span><div class="muted">${esc(c.name)}</div></div><span class="badge ${st.certs[c.id]?.status === "Passed" ? "done" : "plain"}">${esc(st.certs[c.id]?.status || "Not planned")}</span></div>`).join("")}</div></div>
     </div>
@@ -298,7 +298,7 @@ function trRoadmap(T, st) {
         <summary><span style="flex:1">Week ${w.n} · ${esc(w.title)}</span>${w.n === wk ? '<span class="badge accent">This week</span>' : ""}<span class="muted">${total ? `${done}/${total}` : "review"}</span></summary>
         <p class="muted">${esc(w.goal)}</p>
         <div class="list">${w.topics.map((t) => topicRow(T, st, t)).join("")}${w.labs.map((l) => labRow(T, T.labs.find((x) => x.id === l))).join("")}
-          ${!total ? `<div class="li"><span>Take full quizzes for your target exam and drill the question bank.</span><div class="row"><button class="btn small" data-trgo="${T.id}|quiz|">Quiz</button><button class="btn small" data-trgo="${T.id}|questions|">Questions</button></div></div>` : ""}</div></details>`;
+          ${!total ? `<div class="li"><span>Take full quizzes and drill the question bank.</span><div class="row"><button class="btn small" data-trgo="${T.id}|quiz|">Quiz</button><button class="btn small" data-trgo="${T.id}|questions|">Questions</button></div></div>` : ""}</div></details>`;
     }).join("");
 }
 
@@ -451,9 +451,9 @@ function trQuiz(T, st) {
   const answered = qs.filter((q) => chosen[q.id] !== undefined), right = answered.filter((q) => chosen[q.id] === q.answer).length;
   const tags = [...new Set(T.quiz.flatMap((q) => q.tags))];
   const certName = (tag) => (T.tagNames || {})[tag] || (T.certs.find((c) => c.tag === tag) || {}).code || tag;
-  return pageHead("Practice quiz", "Exam-style multiple choice. Filter by certification or topic, or take a random 10-question set.") +
+  return pageHead("Practice quiz", "Multiple choice. Filter by topic, or take a random 10-question set.") +
     `<div class="card toolbar">
-      <select data-tqf="${id}|tag"><option value="">${esc(T.tagLabel || "All exams")}</option>${tags.map((t) => `<option value="${t}" ${f.tag === t ? "selected" : ""}>${esc(certName(t))}</option>`).join("")}</select>
+      ${tags.length ? `<select data-tqf="${id}|tag"><option value="">${esc(T.tagLabel || "All exams")}</option>${tags.map((t) => `<option value="${t}" ${f.tag === t ? "selected" : ""}>${esc(certName(t))}</option>`).join("")}</select>` : ""}
       <select data-tqf="${id}|topic"><option value="">All topics</option>${T.topics.filter((t) => !t.zero).map((t) => `<option value="${t.id}" ${f.topic === t.id ? "selected" : ""}>${esc(t.title)}</option>`).join("")}</select>
       <button class="btn primary" data-tqnew="${id}">Random 10</button>${set ? `<button class="btn" data-tqall="${id}">Show all ${pool.length}</button>` : ""}
       <button class="btn ghost" data-tqreset="${id}">Clear answers</button></div>

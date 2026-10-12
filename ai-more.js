@@ -1,12 +1,12 @@
-// More AI/LLM learning: six more lessons (including Sampling in depth, split out of How LLMs work), responsible-AI frameworks (tested on AIF-C01 and
-// AI-900), extra exercises, a glossary, and more interview/quiz questions. Merged into AI by
+// More AI/LLM learning: more lessons (including Sampling in depth, split out of How LLMs work), responsible-AI
+// principles, extra exercises, a glossary, and more interview/quiz questions. Merged into AI by
 // extendTrack (ai.js). Exercise code avoids backslashes (it lives in template literals).
 
 extendTrack(AI, {
   topics: [
     {
       id: "mlbasics", title: "Machine learning fundamentals", short: "ML",
-      body: `<p>Generative AI sits on top of classic machine learning, and the AI certifications (AIF-C01, AI-900) test these basics directly. Interviewers use them to check you can reason about model quality. New to the idea? Start with <button class="link-btn inline-link" data-trgo="ai|learn|az-ml">Machine learning: learning patterns from examples</button>.</p>
+      body: `<p>Generative AI sits on top of classic machine learning, and AI certifications test these basics directly. Interviewers use them to check you can reason about model quality. New to the idea? Start with <button class="link-btn inline-link" data-trgo="ai|learn|az-ml">Machine learning: learning patterns from examples</button>.</p>
         <ul>
           <li><b>Supervised learning</b> learns from labelled examples: <b>classification</b> predicts a category (fraud / not fraud) and <b>regression</b> predicts a number (a price). <b>Unsupervised learning</b> finds structure without labels (clustering customers into groups, spotting anomalies). <b>Reinforcement learning</b> learns by trial and error from rewards.</li>
           <li><b>Deep learning</b> uses <b>neural networks</b> (models built from many layers of simple calculations) with many layers; LLMs are very large deep-learning models trained mostly with <b>self-supervised</b> next-token prediction (the "label" is just the next token of the text, so no human labelling is needed).</li>
@@ -638,16 +638,14 @@ def softmax(logits, temperature=1.0):
   ],
 
   append: {
-    safety: `<h3>Responsible AI frameworks (on the certification exams)</h3>
-      <div class="cols-2">
-        <div><b>Microsoft's six principles</b><ul><li>Fairness</li><li>Reliability and safety</li><li>Privacy and security</li><li>Inclusiveness</li><li>Transparency</li><li>Accountability</li></ul></div>
-        <div><b>AWS's responsible AI dimensions</b><ul><li>Fairness</li><li>Explainability</li><li>Privacy and security</li><li>Safety</li><li>Controllability</li><li>Veracity and robustness</li><li>Governance</li><li>Transparency</li></ul></div>
-      </div>
+    safety: `<h3>Responsible AI principles</h3>
+      <p>Published responsible-AI frameworks differ in wording but share a core set of principles:</p>
+      <ul><li>Fairness</li><li>Reliability and safety</li><li>Privacy and security</li><li>Transparency and explainability</li><li>Human oversight (controllability)</li><li>Accountability and governance</li></ul>
       <p>In interviews, translate principles into practice: bias testing across groups, human oversight for high-stakes decisions, model and data documentation, audit logs, and clear user disclosure that they're talking to AI.</p>`,
   },
 
   cards: {
-    safety: [["Name Microsoft's six responsible AI principles.", "Fairness, reliability and safety, privacy and security, inclusiveness, transparency, and accountability."]],
+    safety: [["Name the responsible-AI principles most frameworks share.", "Fairness, reliability and safety, privacy and security, transparency and explainability, human oversight, and accountability."]],
   },
 
   groups: [
@@ -664,7 +662,7 @@ def softmax(logits, temperature=1.0):
     { n: 5, title: "Tool use & agents", topics: ["tools", "agents"], labs: ["agent"], goal: "Build a tool-using assistant with guardrails." },
     { n: 6, title: "Evals, testing & safety", topics: ["evals", "safety"], labs: ["evalharness"], goal: "Build an LLM eval harness that runs automatically on every change; know the responsible-AI frameworks." },
     { n: 7, title: "Production, customization & cloud AI", topics: ["llmops", "customization", "cloudai"], labs: ["deploy"], goal: "Deploy on AWS or Azure with caching, monitoring and cost limits; know when fine-tuning is worth it." },
-    { n: 8, title: "Certification & interview sprint", topics: [], labs: [], goal: "Drill the question bank and quizzes, and polish your projects' READMEs and demos." },
+    { n: 8, title: "Interview sprint", topics: [], labs: [], goal: "Drill the question bank and quizzes, and polish your projects' READMEs and demos." },
   ],
 
   questions: [
@@ -679,32 +677,19 @@ def softmax(logits, temperature=1.0):
   ],
 
   quiz: [
-    { id: "x26", tags: ["AIF", "AI-900"], topic: "mlbasics", q: "Predicting a house's sale price from its features is:", options: ["Classification", "Regression", "Clustering", "Reinforcement learning"], answer: 1, why: "Regression predicts a continuous number." },
-    { id: "x27", tags: ["AIF", "AI-900"], topic: "mlbasics", q: "Grouping customers by behaviour without predefined labels is:", options: ["Supervised learning", "Unsupervised learning (clustering)", "Regression", "Fine-tuning"], answer: 1, why: "Clustering finds structure in unlabelled data." },
-    { id: "x28", tags: ["AIF", "MLA"], topic: "mlbasics", q: "A model scores 99% on training data and 70% on test data. This suggests:", options: ["Underfitting", "Overfitting", "Data drift", "Perfect generalization"], answer: 1, why: "A large gap between training and test performance indicates overfitting." },
-    { id: "x29", tags: ["AIF", "AI-900"], topic: "mlbasics", q: "In a fraud model, recall measures:", options: ["Of flagged transactions, how many were fraud", "Of all fraud, how many were flagged", "Overall accuracy", "Model latency"], answer: 1, why: "Recall = true positives / all actual positives." },
-    { id: "x30", tags: ["AIF"], topic: "mlbasics", q: "Which data split should be used only once, for the final unbiased estimate?", options: ["Training set", "Validation set", "Test set", "Augmented set"], answer: 2, why: "The test set stays untouched until the end." },
+    { id: "x26", tags: [], topic: "mlbasics", q: "Predicting a house's sale price from its features is:", options: ["Classification", "Regression", "Clustering", "Reinforcement learning"], answer: 1, why: "Regression predicts a continuous number." },
+    { id: "x27", tags: [], topic: "mlbasics", q: "Grouping customers by behaviour without predefined labels is:", options: ["Supervised learning", "Unsupervised learning (clustering)", "Regression", "Fine-tuning"], answer: 1, why: "Clustering finds structure in unlabelled data." },
+    { id: "x28", tags: [], topic: "mlbasics", q: "A model scores 99% on training data and 70% on test data. This suggests:", options: ["Underfitting", "Overfitting", "Data drift", "Perfect generalization"], answer: 1, why: "A large gap between training and test performance indicates overfitting." },
+    { id: "x29", tags: [], topic: "mlbasics", q: "In a fraud model, recall measures:", options: ["Of flagged transactions, how many were fraud", "Of all fraud, how many were flagged", "Overall accuracy", "Model latency"], answer: 1, why: "Recall = true positives / all actual positives." },
+    { id: "x30", tags: [], topic: "mlbasics", q: "Which data split should be used only once, for the final unbiased estimate?", options: ["Training set", "Validation set", "Test set", "Augmented set"], answer: 2, why: "The test set stays untouched until the end." },
     { id: "x31", tags: [], topic: "tokenization", q: "Byte-pair encoding builds a vocabulary by:", options: ["Splitting on spaces only", "Repeatedly merging the most frequent adjacent pairs", "Hashing every word", "Using one token per character"], answer: 1, why: "BPE merges frequent pairs into new tokens iteratively." },
     { id: "x32", tags: [], topic: "tokenization", q: "The most reliable way to know a prompt's token count is:", options: ["Divide characters by 4", "Count words", "Use the provider's token-counting tool", "Count sentences"], answer: 2, why: "Tokenizers differ by model; rules of thumb are only rough." },
-    { id: "x33", tags: ["AIF", "AI-102"], topic: "customization", q: "The best way to keep a model's answers current with weekly-changing policies:", options: ["Fine-tune weekly", "RAG over the policy documents", "Raise the temperature", "Train a new model"], answer: 1, why: "RAG supplies current documents at query time; fine-tuning isn't for fast-changing facts." },
-    { id: "x34", tags: ["AIF", "MLA"], topic: "customization", q: "LoRA is a technique for:", options: ["Faster tokenization", "Parameter-efficient fine-tuning with small adapter matrices", "Vector search", "Image generation"], answer: 1, why: "LoRA trains low-rank adapters instead of all weights." },
-    { id: "x35", tags: ["AIF"], topic: "customization", q: "Training a smaller model on a larger model's outputs is called:", options: ["Distillation", "Quantization", "Tokenization", "Retrieval"], answer: 0, why: "Distillation transfers behaviour from a large 'teacher' to a smaller 'student'." },
-    { id: "x36", tags: ["AI-102", "AI-900"], topic: "multimodal", q: "Which Azure service is built for extracting fields from invoices and forms?", options: ["Azure AI Document Intelligence", "Azure Monitor", "Azure Front Door", "Azure DevOps"], answer: 0, why: "Document Intelligence specializes in form and document extraction." },
-    { id: "x37", tags: ["AIF"], topic: "multimodal", q: "Which AWS service extracts text and form data from scanned documents?", options: ["Amazon Polly", "Amazon Textract", "Amazon Lex", "Amazon Kendra"], answer: 1, why: "Textract extracts printed text, forms and tables from documents." },
-    { id: "x38", tags: ["AI-900"], topic: "cloudai", q: "Which Azure service provides content filtering for harmful text and images?", options: ["Azure AI Content Safety", "Azure Key Vault", "Azure Policy", "Azure Arc"], answer: 0, why: "Azure AI Content Safety detects harmful content." },
-    { id: "x39", tags: ["AIF", "MLA"], topic: "cloudai", q: "Which AWS service is the platform for building, training and deploying your own ML models?", options: ["Amazon SageMaker AI", "Amazon Bedrock Guardrails", "AWS Glue", "Amazon Athena"], answer: 0, why: "SageMaker AI covers the full ML lifecycle for custom models." },
-    { id: "x40", tags: ["AI-900", "AI-102"], topic: "safety", q: "Which is one of Microsoft's six responsible AI principles?", options: ["Profitability", "Inclusiveness", "Virality", "Exclusivity"], answer: 1, why: "The six are fairness, reliability and safety, privacy and security, inclusiveness, transparency and accountability." },
+    { id: "x33", tags: [], topic: "customization", q: "The best way to keep a model's answers current with weekly-changing policies:", options: ["Fine-tune weekly", "RAG over the policy documents", "Raise the temperature", "Train a new model"], answer: 1, why: "RAG supplies current documents at query time; fine-tuning isn't for fast-changing facts." },
+    { id: "x34", tags: [], topic: "customization", q: "LoRA is a technique for:", options: ["Faster tokenization", "Parameter-efficient fine-tuning with small adapter matrices", "Vector search", "Image generation"], answer: 1, why: "LoRA trains low-rank adapters instead of all weights." },
+    { id: "x35", tags: [], topic: "customization", q: "Training a smaller model on a larger model's outputs is called:", options: ["Distillation", "Quantization", "Tokenization", "Retrieval"], answer: 0, why: "Distillation transfers behaviour from a large 'teacher' to a smaller 'student'." },
     { id: "x42", tags: [], topic: "sampling", q: "Softmax turns a model's logits into:", options: ["Tokens", "Probabilities that add up to 1", "Embeddings", "A temperature"], answer: 1, why: "Softmax exponentiates each score and divides by the total, giving probabilities that sum to 1." },
-    { id: "x43", tags: ["AIF"], topic: "sampling", q: "Raising the temperature above 1 makes the next-token distribution:", options: ["Sharper", "Flatter, so outputs vary more", "Unchanged", "Greedy"], answer: 1, why: "Dividing logits by a larger temperature shrinks their differences before softmax." },
-    { id: "x41", tags: ["AIF"], topic: "safety", q: "Which is one of AWS's responsible AI dimensions?", options: ["Controllability", "Monetization", "Gamification", "Speed"], answer: 0, why: "AWS lists fairness, explainability, privacy and security, safety, controllability, veracity and robustness, governance and transparency." },
+    { id: "x43", tags: [], topic: "sampling", q: "Raising the temperature above 1 makes the next-token distribution:", options: ["Sharper", "Flatter, so outputs vary more", "Unchanged", "Greedy"], answer: 1, why: "Dividing logits by a larger temperature shrinks their differences before softmax." },
   ],
-
-  certs: [
-    { id: "aip", code: "AIP-C01", name: "AWS Certified Generative AI Developer - Professional", provider: "AWS", level: "Professional", tag: "AIP", link: "https://aws.amazon.com/certification/certified-generative-ai-developer-professional/",
-      why: "AWS's professional-level GenAI exam: building production RAG, agents, guardrails, evaluation and monitoring on Bedrock. Aimed at developers with real GenAI project experience; take it after AIF-C01 and the projects in this track.", topics: ["apis", "prompting", "vectorstores", "rag", "tools", "agents", "evals", "safety", "llmops", "cloudai"] },
-  ],
-
-  certTopics: { aif: ["mlbasics", "customization", "cloudai", "multimodal", "tokenization"], ai900: ["mlbasics", "multimodal", "cloudai"], ai102: ["multimodal", "cloudai", "customization"], mla: ["mlbasics", "customization", "cloudai"] },
 
   videos: {
     mlbasics: [V("aircAruvnKk", "But what is a neural network?", "3Blue1Brown"), V("Kdsp6soqA7o", "Machine Learning Fundamentals: The Confusion Matrix", "StatQuest with Josh Starmer"), V("EuBBz3bI-aA", "Machine Learning Fundamentals: Bias and Variance", "StatQuest with Josh Starmer")],
