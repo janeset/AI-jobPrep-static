@@ -26,7 +26,7 @@ function buildSearchIndex() {
   // AI / LLM track and Roles lessons
   ["ai", "roles"].forEach((id) => {
     const T = TRACKS[id];
-    T.topics.forEach((t) => add("lesson", t.title, T.name, stripHtml(t.body), () => { trState(id).sel = t.id; go(id + ":learn"); }));
+    T.topics.forEach((t) => add("lesson", t.title, t.zero ? `${T.name} · ${ZERO_PARTS[t.zero]}` : T.name, stripHtml(t.body), () => { trState(id).sel = t.id; go(id + ":learn"); }));
     T.questions.forEach((q) => add("question", q.q, `${T.name} · ${(topicById(T, q.topic) || {}).title || ""}`, q.a, () => {
       (views._trqf = views._trqf || {})[id] = { topic: q.topic, status: "" };
       go(id + ":questions"); revealEl(`[data-trshow="${id}:${q.id}"]`);

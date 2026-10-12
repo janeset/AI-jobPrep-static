@@ -63,7 +63,36 @@ resp = client.chat.completions.create(
 )
 print(resp.choices[0].message.content)` }],
       exercises: [{
-        prompt: "Implement gpu_memory_gb(params_billion, bits, layers, hidden, context_tokens, batch=1, kv_bits=16). Weights take params x bits/8 bytes; the KV cache takes 2 x layers x hidden x context_tokens x batch x kv_bits/8 bytes (assume no grouped-query attention). Return the total in GB (1e9 bytes), rounded to 1 decimal.",
+        key: "weights", prompt: "Write weights_gb(params_billion, bits) returning the GPU memory the model weights alone need, in GB: params × bits / 8 bytes, with params in billions so the answer comes out in GB directly.",
+        example: "weights_gb(8, 16) returns 16.0\nweights_gb(70, 4) returns 35.0",
+        hint: "Each parameter takes bits / 8 bytes, and a billion bytes is a GB, so `params_billion * bits / 8`.",
+        starter: `def weights_gb(params_billion, bits):
+    pass
+`,
+        tests: `assert weights_gb(8, 16) == 16, f"8B params at 16 bits is 16 GB, got {weights_gb(8, 16)}"
+assert weights_gb(70, 4) == 35, "4-bit quantization: 70B params in 35 GB"
+assert weights_gb(1, 8) == 1`,
+        solution: `def weights_gb(params_billion, bits):
+    return params_billion * bits / 8`,
+      }, {
+        key: "backend", prompt: "A model gateway routes each request. Write choose_backend(sensitive, local_up): sensitive data must stay on the local model, so return \"local\" if it's up and \"reject\" if not. Other requests prefer \"local\" when it's up and fall back to \"cloud\".",
+        example: `choose_backend(True, False) returns "reject"\nchoose_backend(False, False) returns "cloud"`,
+        hint: "Handle sensitive first: `if sensitive: return \"local\" if local_up else \"reject\"`. Then the same shape with \"cloud\".",
+        starter: `def choose_backend(sensitive, local_up):
+    pass
+`,
+        tests: `assert choose_backend(True, True) == "local"
+assert choose_backend(True, False) == "reject", "sensitive data never goes to the cloud fallback"
+assert choose_backend(False, True) == "local"
+assert choose_backend(False, False) == "cloud"`,
+        solution: `def choose_backend(sensitive, local_up):
+    if local_up:
+        return "local"
+    return "reject" if sensitive else "cloud"`,
+      }, {
+        key: "gpumem", prompt: "Implement gpu_memory_gb(params_billion, bits, layers, hidden, context_tokens, batch=1, kv_bits=16). Weights take params × bits/8 bytes; the KV cache takes 2 × layers × hidden × context_tokens × batch × kv_bits/8 bytes (assume no grouped-query attention). Return the total in GB (1e9 bytes), rounded to 1 decimal.",
+        example: "gpu_memory_gb(8, 16, 32, 4096, 8192) returns 20.3\n(16 GB of weights + about 4.3 GB of KV cache)",
+        hint: "Work in bytes: weights = `params_billion * 1e9 * bits / 8`, kv = `2 * layers * hidden * context_tokens * batch * kv_bits / 8`. Return `round((weights + kv) / 1e9, 1)`.",
         starter: `def gpu_memory_gb(params_billion, bits, layers, hidden, context_tokens, batch=1, kv_bits=16):
     pass
 `,
@@ -71,6 +100,10 @@ print(resp.choices[0].message.content)` }],
 assert gpu_memory_gb(8, 16, 32, 4096, 8192) == 20.3
 assert gpu_memory_gb(8, 4, 32, 4096, 8192) == 8.3, "4-bit weights shrink only the weights"
 assert gpu_memory_gb(8, 4, 32, 4096, 8192, batch=4) == 21.2, "KV cache grows with batch size"`,
+        solution: `def gpu_memory_gb(params_billion, bits, layers, hidden, context_tokens, batch=1, kv_bits=16):
+    weights = params_billion * 1e9 * bits / 8
+    kv = 2 * layers * hidden * context_tokens * batch * kv_bits / 8
+    return round((weights + kv) / 1e9, 1)`,
       }],
       cards: [
         ["Why do most self-hosted inference servers expose an OpenAI-compatible API?", "So application code, SDKs and gateways can switch between local and cloud models by changing a base URL and model name, not rewriting integrations."],
@@ -104,9 +137,23 @@ assert gpu_memory_gb(8, 4, 32, 4096, 8192, batch=4) == 21.2, "KV cache grows wit
           <li><b>Circuit breakers</b> stop calling a dependency that keeps failing, so one broken system doesn't stall every task.</li>
           <li><b>Graceful degradation:</b> fall back to a smaller model, a cached answer, or "I couldn't reach PLM; here's what I found elsewhere".</li>
           <li><b>Audit log</b> every step: who asked, what the model proposed, who approved, what executed, and the result.</li></ul>`,
-      exercises: [
+      exercises: [{
+          key: "describe", prompt: "An approval screen must show exactly what an agent wants to do. Write describe_change(call) for call = {\"tool\": name, \"args\": {...}} returning \"name(key=value, ...)\" with the arguments sorted by key.",
+          example: `describe_change({"tool": "create_work_order", "args": {"qty": 5, "part_number": "A-1"}})\nreturns "create_work_order(part_number=A-1, qty=5)"`,
+          hint: "Build a list of `key + \"=\" + str(value)` for each key in `sorted(call[\"args\"])`, then join it with `\", \"` inside the brackets.",
+          starter: `def describe_change(call):
+    pass
+`,
+          tests: `assert describe_change({"tool": "create_work_order", "args": {"qty": 5, "part_number": "A-1"}}) == "create_work_order(part_number=A-1, qty=5)"
+assert describe_change({"tool": "ping", "args": {}}) == "ping()"`,
+          solution: `def describe_change(call):
+    parts = [key + "=" + str(call["args"][key]) for key in sorted(call["args"])]
+    return call["tool"] + "(" + ", ".join(parts) + ")"`,
+        },
         {
-          prompt: "Implement call_with_retry(fn, max_attempts=3, base_delay=0.5, sleep=time.sleep). Call fn(); if it raises TransientError, sleep base_delay x 2^attempt and try again, up to max_attempts calls in total. Re-raise after the last attempt (without sleeping). Any other exception must propagate immediately with no retry.",
+          key: "retry", prompt: "Implement call_with_retry(fn, max_attempts=3, base_delay=0.5, sleep=time.sleep). Call fn(); if it raises TransientError, sleep base_delay × 2^attempt and try again, up to max_attempts calls in total. Re-raise after the last attempt (without sleeping). Any other exception must propagate immediately with no retry.",
+          example: "A function that fails twice with TransientError and then succeeds: the delays are [0.5, 1.0] and the result comes back.",
+          hint: "`for attempt in range(max_attempts):` call fn inside `try:` and return its result. In `except TransientError:`, re-raise with a bare `raise` if this was the last attempt, otherwise `sleep(base_delay * 2 ** attempt)`. Other exceptions aren't caught, so they propagate by themselves.",
           starter: `import time
 
 class TransientError(Exception):
@@ -142,9 +189,24 @@ try:
 except ValueError:
     pass
 assert delays == []`,
+          solution: `import time
+
+class TransientError(Exception):
+    pass
+
+def call_with_retry(fn, max_attempts=3, base_delay=0.5, sleep=time.sleep):
+    for attempt in range(max_attempts):
+        try:
+            return fn()
+        except TransientError:
+            if attempt == max_attempts - 1:
+                raise
+            sleep(base_delay * 2 ** attempt)`,
         },
         {
-          prompt: "Implement review_action(call, policy) as the gate before an agent's tool call runs. call is {'tool': name, 'args': {...}}; policy maps tool name to {'mode': 'auto' or 'approve', 'args': [allowed arg names]}. Return 'deny' for unknown tools or if the argument names differ from the policy in any way (missing or extra); otherwise 'allow' for auto tools and 'needs_approval' for approve tools.",
+          key: "review", prompt: "Implement review_action(call, policy) as the gate before an agent's tool call runs. call is {\"tool\": name, \"args\": {...}}; policy maps tool name to {\"mode\": \"auto\" or \"approve\", \"args\": [allowed arg names]}. Return \"deny\" for unknown tools or if the argument names differ from the policy in any way (missing or extra); otherwise \"allow\" for auto tools and \"needs_approval\" for approve tools.",
+          example: `review_action({"tool": "search_docs", "args": {"query": "servo"}}, POLICY) returns "allow"\nreview_action({"tool": "delete_project", "args": {"id": 7}}, POLICY) returns "deny"`,
+          hint: "Look the tool up in policy (deny if missing). Compare the argument names as sets: `set(call[\"args\"]) != set(rule[\"args\"])` means deny. Then map the mode to the answer.",
           starter: `def review_action(call, policy):
     pass
 `,
@@ -158,6 +220,11 @@ assert review_action({"tool": "create_work_order", "args": {"part_number": "A-1"
 assert review_action({"tool": "delete_project", "args": {"id": 7}}, POLICY) == "deny", "unknown tools are denied"
 assert review_action({"tool": "get_bom", "args": {}}, POLICY) == "deny", "missing argument"
 assert review_action({"tool": "get_bom", "args": {"part_number": "A-1", "sql": "DROP TABLE"}}, POLICY) == "deny", "unexpected argument"`,
+          solution: `def review_action(call, policy):
+    rule = policy.get(call["tool"])
+    if rule is None or set(call["args"]) != set(rule["args"]):
+        return "deny"
+    return "allow" if rule["mode"] == "auto" else "needs_approval"`,
         },
       ],
       cards: [
@@ -186,7 +253,41 @@ assert review_action({"tool": "get_bom", "args": {"part_number": "A-1", "sql": "
         <h3>Beyond chunks</h3>
         <p><b>Knowledge graphs</b> (parts, assemblies, projects, customers and their relationships) answer structural questions vector search can't, like "which active projects use this servo?". Many teams combine a graph or SQL lookup with text retrieval.</p>`,
       exercises: [{
-        prompt: "Implement secure_hybrid(keyword, vector, acl, groups, top_k=3, k=60). keyword and vector are ranked lists of doc ids. acl maps doc id to the set of groups allowed to read it (docs missing from acl are denied). First drop docs the user can't read (user's groups intersect the doc's groups), then fuse the remaining rankings with RRF (rank starts at 1 within each filtered list) and return the top_k ids by score, ties broken by id.",
+        key: "can-read", prompt: "Write can_read(doc_groups, user_groups): return True if the user shares at least one group with the document. A document with no groups is readable by nobody (default deny).",
+        example: `can_read({"eng", "sales"}, ["eng"]) returns True\ncan_read(set(), ["eng"]) returns False`,
+        hint: "Loop over user_groups and return True as soon as one is `in doc_groups`; return False after the loop. (Or use set intersection: `bool(set(doc_groups) & set(user_groups))`.)",
+        starter: `def can_read(doc_groups, user_groups):
+    pass
+`,
+        tests: `assert can_read({"eng", "sales"}, ["eng"]) is True
+assert can_read({"hr"}, ["eng", "sales"]) is False
+assert can_read(set(), ["eng"]) is False, "no groups means no access"
+assert can_read({"eng"}, []) is False`,
+        solution: `def can_read(doc_groups, user_groups):
+    for g in user_groups:
+        if g in doc_groups:
+            return True
+    return False`,
+      }, {
+        key: "rrf", prompt: "Reciprocal rank fusion scores a document by its positions in several ranked lists. Write rrf_score(ranks, k=60): ranks is the list of positions (starting at 1) where the document appears; return the sum of 1 / (k + rank).",
+        example: "rrf_score([1, 3]) returns 1/61 + 1/63, about 0.0323\nrrf_score([]) returns 0",
+        hint: "A running total: `total += 1 / (k + r)` for each rank r.",
+        starter: `def rrf_score(ranks, k=60):
+    pass
+`,
+        tests: `assert abs(rrf_score([1, 3]) - (1 / 61 + 1 / 63)) < 1e-12
+assert rrf_score([]) == 0
+assert rrf_score([1], k=0) == 1.0
+assert rrf_score([1]) > rrf_score([2]), "a better position scores higher"`,
+        solution: `def rrf_score(ranks, k=60):
+    total = 0
+    for r in ranks:
+        total += 1 / (k + r)
+    return total`,
+      }, {
+        key: "secure", prompt: "Implement secure_hybrid(keyword, vector, acl, groups, top_k=3, k=60). keyword and vector are ranked lists of doc ids. acl maps doc id to the set of groups allowed to read it (docs missing from acl are denied). First drop docs the user can't read (user's groups intersect the doc's groups), then fuse the remaining rankings with RRF (rank starts at 1 within each filtered list) and return the top_k ids by score, ties broken by id.",
+        example: `With an HR-only document ranked first by keyword search, a user in "eng" never sees it:\nsecure_hybrid(kw, vec, ACL, ["eng"]) returns ["d2", "d1", "d4"]`,
+        hint: "Filter each list first with your can_read logic (`acl.get(d, set())`). Then for each filtered list, `for rank, d in enumerate(lst, 1): scores[d] = scores.get(d, 0) + 1 / (k + rank)`. Sort by `(-score, id)` and take the first top_k.",
         starter: `def secure_hybrid(keyword, vector, acl, groups, top_k=3, k=60):
     pass
 `,
@@ -198,6 +299,15 @@ assert "d3" not in secure_hybrid(kw, vec, ACL, ["eng", "sales"], top_k=5), "HR-o
 assert "d9" not in secure_hybrid(kw, vec, ACL, ["eng"], top_k=5), "docs with no ACL are denied by default"
 assert secure_hybrid(kw, vec, ACL, ["hr"]) == ["d3"]
 assert secure_hybrid(["d5"], [], ACL, ["sales"]) == ["d5"]`,
+        solution: `def secure_hybrid(keyword, vector, acl, groups, top_k=3, k=60):
+    allowed = lambda d: bool(acl.get(d, set()) & set(groups))
+    scores = {}
+    for ranked in (keyword, vector):
+        kept = [d for d in ranked if allowed(d)]
+        for rank, d in enumerate(kept, 1):
+            scores[d] = scores.get(d, 0) + 1 / (k + rank)
+    ordered = sorted(scores, key=lambda d: (-scores[d], d))
+    return ordered[:top_k]`,
       }],
       cards: [
         ["Why not just tell the model 'don't reveal confidential documents'?", "Prompts aren't access control: injection or simple mistakes bypass them. Filter by the user's permissions before anything reaches the context window."],
@@ -280,7 +390,41 @@ export function Ask() {
 }` },
       ],
       exercises: [{
-        prompt: "Implement parse_sse(chunks): chunks is a list of strings as they arrive from the network (an event can be split anywhere). Events end with a blank line (two newlines). Collect lines starting with 'data:' (drop the prefix and one optional space); join multiple data lines with a newline. Skip events with no data lines (e.g. ': keep-alive' comments). Stop at the payload [DONE]. Return the list of payloads; ignore an incomplete trailing event. NL = chr(10) is provided.",
+        key: "sse-event", prompt: "Server-Sent Events send each message as a line starting with \"data: \" followed by a blank line. Write sse_event(data) that formats one event: \"data: \" + data + two new lines. NL = chr(10) is provided.",
+        example: `sse_event("Hello") returns "data: Hello" + NL + NL`,
+        hint: "Concatenate the three parts: `\"data: \" + data + NL + NL`.",
+        starter: `NL = chr(10)
+
+def sse_event(data):
+    pass
+`,
+        tests: `assert sse_event("Hello") == "data: Hello" + NL + NL, repr(sse_event("Hello"))
+assert sse_event("[DONE]").startswith("data: [DONE]")`,
+        solution: `NL = chr(10)
+
+def sse_event(data):
+    return "data: " + data + NL + NL`,
+      }, {
+        key: "error-body", prompt: "APIs should return structured errors the frontend can show honestly. Write error_response(status, message, trace_id) returning {\"error\": {\"status\": status, \"message\": message, \"trace_id\": trace_id}}. status must be an HTTP error code from 400 to 599; raise ValueError otherwise.",
+        example: `error_response(403, "No access to this document", "t-42") returns\n{"error": {"status": 403, "message": "No access to this document", "trace_id": "t-42"}}`,
+        hint: "Check `400 <= status <= 599` first and raise if not; then return the nested dict.",
+        starter: `def error_response(status, message, trace_id):
+    pass
+`,
+        tests: `assert error_response(403, "No access to this document", "t-42") == {"error": {"status": 403, "message": "No access to this document", "trace_id": "t-42"}}
+for bad in [200, 302, 600]:
+    try:
+        error_response(bad, "x", "t"); raise SystemExit("expected ValueError for " + str(bad))
+    except ValueError:
+        pass`,
+        solution: `def error_response(status, message, trace_id):
+    if not 400 <= status <= 599:
+        raise ValueError("not an error status: " + str(status))
+    return {"error": {"status": status, "message": message, "trace_id": trace_id}}`,
+      }, {
+        key: "sse", prompt: "Implement parse_sse(chunks): chunks is a list of strings as they arrive from the network (an event can be split anywhere). Events end with a blank line (two newlines). Collect lines starting with \"data:\" (drop the prefix and one optional space); join multiple data lines with a newline. Skip events with no data lines (e.g. \": keep-alive\" comments). Stop at the payload [DONE]. Return the list of payloads; ignore an incomplete trailing event. NL = chr(10) is provided.",
+        example: `parse_sse(["data: Hel" + NL + NL + "data: lo" + NL + NL + "data: [DONE]" + NL + NL]) returns ["Hel", "lo"]`,
+        hint: "Join all chunks into one buffer first, then split it on NL + NL: every piece except the last is a complete event. For each event, collect the data lines (`line[5:]`, dropping one leading space), skip events with none, and stop at [DONE].",
         starter: `NL = chr(10)
 
 def parse_sse(chunks):
@@ -292,6 +436,24 @@ pieces = [stream[i:i + 3] for i in range(0, len(stream), 3)]
 assert parse_sse(pieces) == ["Hel", "lo"], "events can be split across chunks"
 assert parse_sse(["data: a" + NL + "data: b" + NL + NL]) == ["a" + NL + "b"], "multi-line data joins with newlines"
 assert parse_sse(["data: partial"]) == [], "incomplete events wait for more data"`,
+        solution: `NL = chr(10)
+
+def parse_sse(chunks):
+    events = "".join(chunks).split(NL + NL)[:-1]   # the last piece is incomplete (or empty)
+    payloads = []
+    for event in events:
+        data = []
+        for line in event.split(NL):
+            if line.startswith("data:"):
+                value = line[5:]
+                data.append(value[1:] if value.startswith(" ") else value)
+        if not data:
+            continue
+        payload = NL.join(data)
+        if payload == "[DONE]":
+            break
+        payloads.append(payload)
+    return payloads`,
       }],
       cards: [
         ["Why stream LLM responses to the browser?", "Users see output within a second instead of waiting for the whole answer, and they can stop a bad answer early, saving tokens."],
@@ -379,7 +541,51 @@ GROUP BY id ORDER BY rrf DESC LIMIT 10;` }],
           <li><b>Data contracts:</b> agree on schemas and change notice with each system owner; validate incoming data and alert on drift.</li>
           <li><b>Protect the source:</b> respect rate limits, run heavy reads off-peak or from replicas, and never write to a system of record without its owner agreeing to the path.</li></ul>`,
       exercises: [{
-        prompt: "Implement incremental_sync(records, watermark, store). Skip records with updated_at <= watermark. For the rest, upsert into store[id] = {'version', 'data'} only if there's no stored version or the record's version is newer; if the record has 'deleted': True (and is newer), remove it from store. Return the new watermark: the highest updated_at among records newer than the old watermark (or the old watermark if none).",
+        key: "map-ids", prompt: "The same part has different IDs in PLM and ERP. Write to_erp_ids(plm_ids, mapping) that returns (mapped, missing): mapped is the list of ERP IDs for the PLM IDs found in mapping (in order), missing is the list of PLM IDs with no mapping.",
+        example: `to_erp_ids(["P-1", "P-9"], {"P-1": "E-100"}) returns (["E-100"], ["P-9"])`,
+        hint: "Two lists, one loop: `if pid in mapping:` append `mapping[pid]` to mapped, else append pid to missing. Return both.",
+        starter: `def to_erp_ids(plm_ids, mapping):
+    pass
+`,
+        tests: `assert to_erp_ids(["P-1", "P-9"], {"P-1": "E-100"}) == (["E-100"], ["P-9"])
+assert to_erp_ids([], {}) == ([], [])
+assert to_erp_ids(["P-2", "P-1"], {"P-1": "E-1", "P-2": "E-2"}) == (["E-2", "E-1"], [])`,
+        solution: `def to_erp_ids(plm_ids, mapping):
+    mapped, missing = [], []
+    for pid in plm_ids:
+        if pid in mapping:
+            mapped.append(mapping[pid])
+        else:
+            missing.append(pid)
+    return mapped, missing`,
+      }, {
+        key: "paginate", prompt: "REST APIs return big results a page at a time. Write fetch_all(fetch_page): call fetch_page(cursor) starting with cursor None; each call returns {\"items\": [...], \"next\": cursor or None}. Keep calling with the returned cursor until next is None, and return all the items in order.",
+        example: "With three pages of 2, 2 and 1 items, fetch_all returns all 5 items and calls fetch_page 3 times.",
+        hint: "`cursor = None`, `items = []`, then a `while True:` loop: get a page, `items.extend(page[\"items\"])`, set cursor to `page[\"next\"]`, and `break` when it's None.",
+        starter: `def fetch_all(fetch_page):
+    pass
+`,
+        tests: `PAGES = {None: {"items": [1, 2], "next": "c2"}, "c2": {"items": [3, 4], "next": "c3"}, "c3": {"items": [5], "next": None}}
+seen = []
+def fetch_page(cursor):
+    seen.append(cursor)
+    return PAGES[cursor]
+assert fetch_all(fetch_page) == [1, 2, 3, 4, 5]
+assert seen == [None, "c2", "c3"], "follow the cursors in order, starting from None"
+assert fetch_all(lambda c: {"items": [], "next": None}) == []`,
+        solution: `def fetch_all(fetch_page):
+    items = []
+    cursor = None
+    while True:
+        page = fetch_page(cursor)
+        items.extend(page["items"])
+        cursor = page["next"]
+        if cursor is None:
+            return items`,
+      }, {
+        key: "sync", prompt: "Implement incremental_sync(records, watermark, store). Skip records with updated_at <= watermark. For the rest, upsert into store[id] = {\"version\", \"data\"} only if there's no stored version or the record's version is newer; if the record has \"deleted\": True (and is newer), remove it from store. Return the new watermark: the highest updated_at among records newer than the old watermark (or the old watermark if none).",
+        example: "A batch with an older version arriving after a newer one leaves the newer version in the store; a newer record marked deleted removes the entry.",
+        hint: "Loop over records newer than the watermark, tracking the highest updated_at. For each, compare its version with `store.get(id, {}).get(\"version\")`; act only if there's none or the record's is higher. Use `store.pop(id, None)` for deletes.",
         starter: `def incremental_sync(records, watermark, store):
     pass
 `,
@@ -402,6 +608,20 @@ assert store == {"P-100": {"version": 3, "data": "Gripper rev C"}}, "older versi
 snapshot = dict(store)
 incremental_sync(batch2, 11, store)
 assert store == snapshot, "replaying a batch is idempotent"`,
+        solution: `def incremental_sync(records, watermark, store):
+    new_mark = watermark
+    for r in records:
+        if r["updated_at"] <= watermark:
+            continue
+        new_mark = max(new_mark, r["updated_at"])
+        current = store.get(r["id"], {}).get("version")
+        if current is not None and r["version"] <= current:
+            continue
+        if r.get("deleted"):
+            store.pop(r["id"], None)
+        else:
+            store[r["id"]] = {"version": r["version"], "data": r["data"]}
+    return new_mark`,
       }],
       cards: [
         ["Why must event consumers be idempotent?", "Most brokers deliver at least once, so the same message can arrive twice (retries, redeliveries). Processing it twice must have the same effect as once."],
@@ -438,7 +658,45 @@ assert store == snapshot, "replaying a batch is idempotent"`,
           <li>Drafting quotes or risk lists from similar past projects.</li>
           <li>Service assistants over manuals, drawings and field reports.</li></ul>`,
       exercises: [{
-        prompt: "Implement explode_bom(bom, part, qty=1): bom maps an assembly to a list of (child, quantity) pairs; parts not in bom (or with no children) are purchased leaf parts. Return a dict of total leaf-part quantities needed to build qty of part. Shared subassemblies must be counted every place they appear.",
+        key: "released", prompt: "An assistant should cite the released revision. Write latest_released(revisions): revisions is a list of {\"rev\", \"state\"} dicts, oldest first. Return the rev of the newest one whose state is \"Released\", or None.",
+        example: `latest_released([{"rev": "A", "state": "Released"}, {"rev": "B", "state": "Released"}, {"rev": "C", "state": "In Work"}]) returns "B"`,
+        hint: "Loop through all of them, remembering the rev each time you see a Released one; the last one remembered is the newest. Start with None.",
+        starter: `def latest_released(revisions):
+    pass
+`,
+        tests: `revs = [{"rev": "A", "state": "Released"}, {"rev": "B", "state": "Released"}, {"rev": "C", "state": "In Work"}]
+assert latest_released(revs) == "B", "C is still In Work"
+assert latest_released([{"rev": "A", "state": "Obsolete"}]) is None
+assert latest_released([]) is None`,
+        solution: `def latest_released(revisions):
+    found = None
+    for r in revisions:
+        if r["state"] == "Released":
+            found = r["rev"]
+    return found`,
+      }, {
+        key: "where-used", prompt: "Write where_used(bom, part): bom maps an assembly to a list of (child, quantity) pairs. Return a sorted list of the assemblies that directly contain part.",
+        example: `where_used(BOM, "SERVO") returns ["GRIPPER", "ROBOT"]`,
+        hint: "Loop `for assembly, children in bom.items():` and check whether any child name equals part. Collect matches, then return `sorted(...)`.",
+        starter: `def where_used(bom, part):
+    pass
+`,
+        tests: `BOM = {"CELL": [("ROBOT", 2), ("GUARD", 1)], "ROBOT": [("SERVO", 6), ("GRIPPER", 1)], "GRIPPER": [("SERVO", 1), ("FINGER", 2)]}
+assert where_used(BOM, "SERVO") == ["GRIPPER", "ROBOT"]
+assert where_used(BOM, "ROBOT") == ["CELL"]
+assert where_used(BOM, "CELL") == [], "nothing contains the top assembly"`,
+        solution: `def where_used(bom, part):
+    users = []
+    for assembly, children in bom.items():
+        for child, qty in children:
+            if child == part:
+                users.append(assembly)
+                break
+    return sorted(users)`,
+      }, {
+        key: "bom", prompt: "Implement explode_bom(bom, part, qty=1): bom maps an assembly to a list of (child, quantity) pairs; parts not in bom (or with no children) are purchased leaf parts. Return a dict of total leaf-part quantities needed to build qty of part. Shared subassemblies must be counted every place they appear.",
+        example: `explode_bom(BOM, "GRIPPER") returns {"SERVO": 1, "FINGER": 2}\nexplode_bom(BOM, "BOLT") returns {"BOLT": 1}`,
+        hint: "Recursion (a function calling itself) fits trees: if part has no children, return `{part: qty}`. Otherwise, for each (child, n), call `explode_bom(bom, child, qty * n)` and add its counts into a running dict.",
         starter: `def explode_bom(bom, part, qty=1):
     pass
 `,
@@ -452,6 +710,15 @@ assert explode_bom(BOM, "GRIPPER") == {"SERVO": 1, "FINGER": 2}
 assert explode_bom(BOM, "CELL") == {"SERVO": 14, "FINGER": 4, "PANEL": 4, "BOLT": 16}
 assert explode_bom(BOM, "CELL", qty=3)["SERVO"] == 42
 assert explode_bom(BOM, "BOLT") == {"BOLT": 1}, "a leaf part is its own result"`,
+        solution: `def explode_bom(bom, part, qty=1):
+    children = bom.get(part)
+    if not children:
+        return {part: qty}
+    total = {}
+    for child, n in children:
+        for leaf, count in explode_bom(bom, child, qty * n).items():
+            total[leaf] = total.get(leaf, 0) + count
+    return total`,
       }],
       cards: [
         ["PLM vs ERP in one line each?", "PLM is the engineering record of the product (parts, BOMs, revisions, changes); ERP runs the business around it (orders, purchasing, inventory, cost)."],
@@ -539,7 +806,43 @@ spec:
           <li><b>Managed identity</b> instead of API keys; RBAC roles per app.</li>
           <li><b>Content filtering</b>, abuse monitoring and logging settings reviewed with security and privacy teams.</li></ul>`,
       exercises: [{
-        prompt: "Implement replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroom=0.3): demand is rps x tokens_per_request tokens per second; each replica can safely serve tokens_per_sec_per_replica x (1 - headroom). Return the number of replicas (rounded up), at least 1.",
+        key: "tpm", prompt: "Managed models have tokens-per-minute (TPM) quotas. Write fits_quota(rps, tokens_per_request, tpm_quota) that returns True if rps requests per second of tokens_per_request tokens each fit within the quota.",
+        example: "fits_quota(5, 1000, 300000) returns True (5 × 1000 × 60 = 300,000)\nfits_quota(6, 1000, 300000) returns False",
+        hint: "Tokens per minute = `rps * tokens_per_request * 60`. Compare with `<=`.",
+        starter: `def fits_quota(rps, tokens_per_request, tpm_quota):
+    pass
+`,
+        tests: `assert fits_quota(5, 1000, 300000) is True, "exactly at the quota still fits"
+assert fits_quota(6, 1000, 300000) is False
+assert fits_quota(0.5, 800, 30000) is True`,
+        solution: `def fits_quota(rps, tokens_per_request, tpm_quota):
+    return rps * tokens_per_request * 60 <= tpm_quota`,
+      }, {
+        key: "assign", prompt: "Spread load across deployments. Write assign_traffic(rps, capacities): capacities maps deployment names to the requests per second each can take, in priority order. Fill each in order up to its capacity until all traffic is placed; return a dict of name to assigned rps (including 0 for unused ones). Raise ValueError if total capacity is too small.",
+        example: `assign_traffic(15, {"canada": 10, "us-east": 10}) returns {"canada": 10, "us-east": 5}`,
+        hint: "Keep `left = rps`. For each name and cap, assign `min(cap, left)` and subtract it from left. After the loop, raise if left is still above 0.",
+        starter: `def assign_traffic(rps, capacities):
+    pass
+`,
+        tests: `assert assign_traffic(15, {"canada": 10, "us-east": 10}) == {"canada": 10, "us-east": 5}
+assert assign_traffic(4, {"canada": 10, "us-east": 10}) == {"canada": 4, "us-east": 0}
+try:
+    assign_traffic(30, {"canada": 10, "us-east": 10}); raise SystemExit("expected ValueError")
+except ValueError:
+    pass`,
+        solution: `def assign_traffic(rps, capacities):
+    left = rps
+    plan = {}
+    for name, cap in capacities.items():
+        plan[name] = min(cap, left)
+        left -= plan[name]
+    if left > 0:
+        raise ValueError("not enough capacity for " + str(rps) + " rps")
+    return plan`,
+      }, {
+        key: "replicas", prompt: "Implement replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroom=0.3): demand is rps × tokens_per_request tokens per second; each replica can safely serve tokens_per_sec_per_replica × (1 - headroom). Return the number of replicas (rounded up), at least 1.",
+        example: "replicas_needed(5, 500, 1000) returns 4\n(demand 2,500 tokens/s; each replica safely serves 700)",
+        hint: "`demand / safe_capacity` gives a fraction of replicas; `math.ceil` rounds it up, and `max(1, ...)` keeps at least one.",
         starter: `import math
 
 def replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroom=0.3):
@@ -549,6 +852,12 @@ def replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroo
 assert replicas_needed(5, 500, 1000, headroom=0) == 3
 assert replicas_needed(0.1, 200, 2000) == 1, "always keep at least one replica"
 assert replicas_needed(20, 800, 2500, headroom=0.2) == 8`,
+        solution: `import math
+
+def replicas_needed(rps, tokens_per_request, tokens_per_sec_per_replica, headroom=0.3):
+    demand = rps * tokens_per_request
+    safe = tokens_per_sec_per_replica * (1 - headroom)
+    return max(1, math.ceil(demand / safe))`,
       }],
       cards: [
         ["Standard (pay-as-you-go) vs provisioned throughput?", "Standard is cheap and flexible for spiky or low traffic but shares capacity and can throttle; provisioned reserves capacity for predictable latency at steady high volume, at a fixed cost whether used or not."],
@@ -653,16 +962,60 @@ def answer(question, chunks):
         span.set_attribute("gen_ai.usage.output_tokens", resp.usage.output_tokens)
         return resp` }],
       exercises: [{
-        prompt: "Implement redact(text) for logs: replace email addresses with [EMAIL] and North American phone numbers with [PHONE]. Phones look like 519-555-0142, 416.555.0100 or (519) 555-0199. Part numbers like 4412-B must be left alone. Tip: use character classes like [0-9] and [.] instead of backslash escapes.",
-        starter: `import re
-
-def redact(text):
+        key: "span", prompt: "Write span_attrs(model, input_tokens, output_tokens) returning the OpenTelemetry GenAI attributes for a model call: {\"gen_ai.request.model\": model, \"gen_ai.usage.input_tokens\": input_tokens, \"gen_ai.usage.output_tokens\": output_tokens}.",
+        example: `span_attrs("claude-opus-5-5", 1200, 300) returns\n{"gen_ai.request.model": "claude-opus-5-5", "gen_ai.usage.input_tokens": 1200, "gen_ai.usage.output_tokens": 300}`,
+        hint: "Return one dict literal with those three keys.",
+        starter: `def span_attrs(model, input_tokens, output_tokens):
     pass
 `,
-        tests: `assert redact("Contact jane.doe@example.com") == "Contact [EMAIL]"
-assert redact("Call 519-555-0142 or (519) 555-0199.") == "Call [PHONE] or [PHONE]."
-assert redact("Part 4412-B, qty 3, rev 2") == "Part 4412-B, qty 3, rev 2", "do not redact part numbers"
-assert redact("a@b.io and 416.555.0100") == "[EMAIL] and [PHONE]"`,
+        tests: `assert span_attrs("claude-opus-5-5", 1200, 300) == {"gen_ai.request.model": "claude-opus-5-5", "gen_ai.usage.input_tokens": 1200, "gen_ai.usage.output_tokens": 300}`,
+        solution: `def span_attrs(model, input_tokens, output_tokens):
+    return {
+        "gen_ai.request.model": model,
+        "gen_ai.usage.input_tokens": input_tokens,
+        "gen_ai.usage.output_tokens": output_tokens,
+    }`,
+      }, {
+        key: "percentile", prompt: "Latency targets use percentiles: p95 is the value 95% of requests are at or below. Write percentile(values, p) using the nearest-rank method: sort the values, then take the one at position ceil(p / 100 × n), counting from 1. Raise ValueError for an empty list.",
+        example: "percentile([120, 80, 300, 95, 110], 50) returns 110\npercentile(list(range(1, 101)), 95) returns 95",
+        hint: "`s = sorted(values)`, `rank = math.ceil(p / 100 * len(s))`, and since lists count from 0, return `s[max(rank, 1) - 1]`.",
+        starter: `import math
+
+def percentile(values, p):
+    pass
+`,
+        tests: `assert percentile([120, 80, 300, 95, 110], 50) == 110
+assert percentile(list(range(1, 101)), 95) == 95
+assert percentile([5, 1, 9], 100) == 9, "p100 is the maximum"
+assert percentile([7], 95) == 7
+try:
+    percentile([], 95); raise SystemExit("expected ValueError")
+except ValueError:
+    pass`,
+        solution: `import math
+
+def percentile(values, p):
+    if not values:
+        raise ValueError("no values")
+    s = sorted(values)
+    rank = math.ceil(p / 100 * len(s))
+    return s[max(rank, 1) - 1]`,
+      }, {
+        key: "cost-alert", prompt: "Alert on cost spikes. Write cost_spike(hourly_costs, factor): hourly_costs lists the cost of each hour, oldest first. Return True if the latest hour costs more than factor × the average of all the earlier hours. With fewer than two hours there's nothing to compare, so return False.",
+        example: "cost_spike([2, 2, 2, 7], 2) returns True (7 > 2 × 2)\ncost_spike([2, 3, 4], 2) returns False (4 is not more than 2 × 2.5)",
+        hint: "`earlier = hourly_costs[:-1]` and `latest = hourly_costs[-1]`; the average is `sum(earlier) / len(earlier)`.",
+        starter: `def cost_spike(hourly_costs, factor):
+    pass
+`,
+        tests: `assert cost_spike([2, 2, 2, 7], 2) is True
+assert cost_spike([2, 3, 4], 2) is False
+assert cost_spike([5], 2) is False, "one hour has nothing to compare against"
+assert cost_spike([1, 1, 2], 2) is False, "exactly factor times the average is not a spike"`,
+        solution: `def cost_spike(hourly_costs, factor):
+    if len(hourly_costs) < 2:
+        return False
+    earlier = hourly_costs[:-1]
+    return hourly_costs[-1] > factor * sum(earlier) / len(earlier)`,
       }],
       cards: [
         ["What belongs on a trace for a RAG request?", "Spans for query rewriting, retrieval, reranking, each model call and tool call, with timings, token counts, model name, retrieved document IDs and errors, all under one trace ID."],
@@ -758,24 +1111,62 @@ assert redact("a@b.io and 416.555.0100") == "[EMAIL] and [PHONE]"`,
     { id: "rq16", tags: ["aicloud"], topic: "gpucloud", q: "Provisioned throughput (e.g. Azure OpenAI PTU) is best for:", options: ["Rare, spiky experiments", "Steady, high-volume traffic needing predictable latency", "Storing embeddings", "Fine-tuning only"], answer: 1, why: "Reserved capacity pays off when usage is steady and latency must be predictable." },
     { id: "rq17", tags: ["cloud", "ai"], topic: "azdevops", q: "Workload identity federation in a pipeline means:", options: ["Sharing one admin password", "Exchanging a short-lived OIDC token for cloud access instead of storing a secret", "Running builds on-premises", "Disabling approvals"], answer: 1, why: "Federated credentials remove long-lived secrets from CI/CD." },
     { id: "rq18", tags: ["ai", "cloud", "aicloud"], topic: "aiobs", q: "What should a production AI app log by default about retrieved documents?", options: ["Full document text", "Document IDs and metadata", "Nothing at all", "Users' passwords"], answer: 1, why: "IDs enable debugging without copying confidential content into logs." },
+    // Checks for the lessons without coding exercises: answering all of a lesson's questions correctly completes it.
+    { id: "rq19", tags: ["ai", "cloud"], topic: "pgvector", q: "Which pgvector index usually gives the best recall and query speed, at the cost of slower builds and more memory?", options: ["IVFFlat", "HNSW", "B-tree", "GIN"], answer: 1, why: "HNSW is the usual choice for recall and speed; IVFFlat builds faster but needs training data, and B-tree and GIN serve ordinary columns and full-text search." },
+    { id: "rq20", tags: ["cloud", "aicloud"], topic: "openshift", q: "In OpenShift, a Project is:", options: ["A Git repository", "A namespace with extra defaults and quotas", "A container image", "A GPU node pool"], answer: 1, why: "Projects wrap Kubernetes namespaces with defaults such as quotas, limits and permissions." },
+    { id: "rq21", tags: ["ai", "cloud"], topic: "azdevops", q: "Where should an AI eval gate run in a CI/CD pipeline?", options: ["Only after deploying to production", "On pull requests, blocking the merge when scores drop below thresholds", "Once a quarter", "Only on developers' laptops"], answer: 1, why: "Running the golden-set evals on every PR catches quality regressions before they merge." },
+    { id: "rq22", tags: ["ai", "cloud"], topic: "azdevops", q: "Why build the container image once and tag it with the commit SHA?", options: ["The same tested image is promoted through every environment, and rollback means redeploying a previous tag", "It makes the image smaller", "Registries require it", "It removes the need for tests"], answer: 0, why: "Build once, deploy many: what you tested is exactly what reaches production, and every version stays addressable for rollback." },
+    { id: "rq23", tags: ["ai"], topic: "aicoding", q: "What's the safest way to use an AI coding assistant on a large change?", options: ["Ask for the whole feature in one prompt and merge it", "Plan first, implement in small steps with tests, and review every diff", "Let it run commands against production to check its work", "Skip review whenever the tests it wrote pass"], answer: 1, why: "Small, planned, tested steps keep each diff reviewable, and you stay accountable for what you merge." },
+    { id: "rq24", tags: ["ai"], topic: "aicoding", q: "Which of these should never go into an AI tool your company hasn't approved?", options: ["A public library's documentation", "Customer data and credentials", "An open-source error message", "A question about Python syntax"], answer: 1, why: "Secrets, personal or customer data and confidential designs stay out of unapproved tools." },
+    { id: "rq25", tags: ["ai"], topic: "aicoding", q: "An assistant suggests a library function you've never seen. What do you do?", options: ["Trust it: models know every API", "Check it against the library's documentation, since assistants can invent or misremember APIs", "Ask the assistant whether it's sure", "Remove the library"], answer: 1, why: "Invented or outdated APIs are a common failure; the docs are the source of truth." },
+    { id: "rq26", tags: ["ai", "cloud", "aicloud"], topic: "behavioral", q: "In behavioural interviews, STAR stands for:", options: ["Situation, Task, Action, Result", "Skills, Training, Achievements, References", "Start, Try, Adjust, Repeat", "Strategy, Tactics, Analysis, Review"], answer: 0, why: "Situation and Task set the scene, Action is what you did, Result is the outcome (with numbers if you have them)." },
+    { id: "rq27", tags: ["ai", "cloud", "aicloud"], topic: "behavioral", q: "You disagree with part of an architect's plan. The strongest approach is to:", options: ["Quietly build your own version", "Raise the concern with evidence such as a prototype or benchmark, then commit to whatever is decided", "Refuse to start until the plan changes", "Go straight to their manager"], answer: 1, why: "Evidence and clear trade-offs make the case; committing once decided shows you can work from an architect's direction." },
+    { id: "rq28", tags: ["ai", "cloud", "aicloud"], topic: "behavioral", q: "About how long should one behavioural story take to tell?", options: ["About 10 seconds", "About two minutes, ending with the result and what you learned", "Ten minutes or more", "As long as the interviewer allows"], answer: 1, why: "Two minutes is long enough for real detail and short enough to leave time for follow-up questions." },
   ],
 
+  // Steps keep their order (progress is saved by position): what to do, what you should see, and a hint.
   labs: [
     {
       id: "knowledge", title: "Engineering knowledge assistant (capstone)", level: "Advanced", time: "20-30 hours",
       stack: ["React + TypeScript", "FastAPI", "PostgreSQL + pgvector", "LLM API", "Docker", "Azure DevOps or GitHub Actions"],
       goal: "An assistant over engineering documents (manuals, drawings' metadata, change orders) that answers with citations, respects permissions, and can draft one action behind human approval. It matches what manufacturing and enterprise AI roles describe almost line by line.",
+      before: [
+        "**Cost:** embeddings for 100 documents cost cents; answering questions during development costs a few dollars with a mid-size model; the CI eval gate adds a little per run. Cloud deployment is optional and is where costs grow.",
+        "**Set spending limits** with the model provider and, if you deploy, a cloud budget alert.",
+        "**Keep keys out of code and git:** `.env` plus `.gitignore` locally, pipeline secrets in CI, and a secrets manager if you deploy.",
+        "**Free alternative:** run PostgreSQL + pgvector in Docker, embed with `sentence-transformers`, and generate with a local model through Ollama. Swap in a hosted model later for quality.",
+      ],
       steps: [
-        "Collect 50-100 public engineering documents (equipment manuals, datasheets) and give each a fake project, revision, lifecycle state and ACL group",
-        "Ingest: parse, chunk, embed and store in PostgreSQL + pgvector with metadata and a full-text column",
-        "Retrieval: hybrid search fused with RRF, filtered by the caller's groups (default deny)",
-        "Answer with streaming and clickable citations; cite only Released revisions unless asked",
-        "Add one write tool (e.g. draft a change request) that requires approval in the UI and is audit-logged",
-        "React + TypeScript frontend: streaming, stop button, citations, approval dialog, thumbs feedback",
-        "Evals: a golden set of 30+ questions (including no-access and injection cases) scored for groundedness and permission leaks, run in CI as a gate",
-        "Observability: OpenTelemetry traces, token and cost metrics, redacted logs",
-        "Containerize (non-root, OpenShift-friendly) and deploy via a pipeline to a cloud container service or a local Kubernetes/OpenShift (CRC) cluster",
-        "Write the README: architecture diagram, eval results, decisions and trade-offs",
+        { do: "Collect 50-100 public engineering documents (equipment manuals, datasheets) and give each a fake project, revision, lifecycle state and ACL group",
+          see: "A folder of documents plus a metadata file (CSV or JSON) with one row per document.",
+          hint: "Vendors publish manuals and datasheets as PDFs; invent the project, revision and group values so you can test permissions." },
+        { do: "Ingest: parse, chunk, embed and store in PostgreSQL + pgvector with metadata and a full-text column",
+          see: "`SELECT count(*) FROM chunks` matches the chunk count, and a test query ordered by `embedding <=> ...` returns sensible chunks.",
+          hint: "The schema in the pgvector lesson has the columns and indexes you need." },
+        { do: "Retrieval: hybrid search fused with RRF, filtered by the caller's groups (default deny)",
+          see: "A user in one group never gets another group's chunks, and exact part numbers are found.",
+          hint: "Your `can_read`, `rrf_score` and `secure_hybrid` exercises are this step in Python." },
+        { do: "Answer with streaming and clickable citations; cite only Released revisions unless asked",
+          see: "Answers stream in, each citation opens the right document, and In Work revisions aren't cited.",
+          hint: "Filter on lifecycle state in the retrieval query, not in the prompt." },
+        { do: "Add one write tool (e.g. draft a change request) that requires approval in the UI and is audit-logged",
+          see: "The tool call pauses with an approval dialog showing the exact change, and the audit log records who approved it.",
+          hint: "Your `describe_change` and `review_action` exercises are the gate." },
+        { do: "React + TypeScript frontend: streaming, stop button, citations, approval dialog, thumbs feedback",
+          see: "All five work in the browser, and feedback is stored with the trace ID.",
+          hint: "The streaming sample in the AI frontends lesson covers the stop button with `AbortController`." },
+        { do: "Evals: a golden set of 30+ questions (including no-access and injection cases) scored for groundedness and permission leaks, run in CI as a gate",
+          see: "A PR that breaks permission filtering fails the pipeline.",
+          hint: "Include questions asked as users who shouldn't see the answer; a leak is a failed case." },
+        { do: "Observability: OpenTelemetry traces, token and cost metrics, redacted logs",
+          see: "One trace per question showing retrieval, model and tool spans, with token counts and no document text in the logs.",
+          hint: "Your `span_attrs` and `percentile` exercises cover the attributes and the p95 metric." },
+        { do: "Containerize (non-root, OpenShift-friendly) and deploy via a pipeline to a cloud container service or a local Kubernetes/OpenShift (CRC) cluster",
+          see: "The pipeline builds the image, deploys it, and a smoke test passes against the deployed URL.",
+          hint: "Group-0 writable paths and a high port keep the image OpenShift-friendly (see the ARO lesson)." },
+        { do: "Write the README: architecture diagram, eval results, decisions and trade-offs",
+          see: "A reader understands what it does, how well it works (numbers), and why you built it this way, in five minutes.",
+          hint: "Lead with a screenshot and the eval table; keep decisions as short bullet points." },
       ],
       cost: "Use a small embedding model and cap generation tokens; run Postgres locally in Docker. If deploying to the cloud, set a budget alert and delete resources when done.",
       resume: "Built a permission-aware engineering knowledge assistant (React/TypeScript, FastAPI, PostgreSQL + pgvector) with hybrid retrieval, cited streaming answers and human-approved agent actions; an eval suite in CI blocked regressions in groundedness and access control.",
@@ -785,14 +1176,34 @@ assert redact("a@b.io and 416.555.0100") == "[EMAIL] and [PHONE]"`,
       id: "gateway", title: "Self-hosted model platform with a gateway", level: "Advanced", time: "12-18 hours",
       stack: ["Kubernetes or OpenShift (kind / CRC / AKS)", "Ollama or vLLM", "LiteLLM", "OpenTelemetry + Grafana", "k6"],
       goal: "Serve an open-weight model and an embedding model on Kubernetes behind a gateway with auth, quotas, cloud fallback and dashboards, then load-test it and publish the capacity numbers.",
+      before: [
+        "**Cost:** free if you run everything locally on CPU with kind or OpenShift Local. The optional cloud fallback calls a paid API (cents during testing); cloud GPUs cost dollars per hour.",
+        "**Set a spending limit** on the cloud model account used for fallback, and stop any cloud GPU as soon as you finish a test.",
+        "**Keep keys out of code and git:** store the fallback API key and the gateway's master key as Kubernetes Secrets, created from the command line, never committed in YAML.",
+        "**Free alternative:** leave out the cloud fallback entirely and route between two local models instead.",
+      ],
       steps: [
-        "Deploy an inference server (Ollama on CPU is fine; vLLM if you have a GPU) with resource requests, probes and a persistent model cache",
-        "Deploy an embedding model as a separate service",
-        "Put LiteLLM in front: API keys per team, rate limits, routing to local first with fallback to a cloud model",
-        "Add OpenTelemetry traces and metrics (latency, tokens, errors) with a Grafana dashboard",
-        "Load-test with k6 at increasing concurrency; record TTFT, tokens/s and p95; find the knee",
-        "Write a capacity note: replicas needed for a target load, with headroom and cost per 1,000 requests",
-        "Automate the deploy with a pipeline and Helm or Kustomize; document rollback",
+        { do: "Deploy an inference server (Ollama on CPU is fine; vLLM if you have a GPU) with resource requests, probes and a persistent model cache",
+          see: "`kubectl get pods` shows it Running and Ready, and a request through `kubectl port-forward` returns an answer.",
+          hint: "Put the model files on a persistent volume so restarts don't download them again." },
+        { do: "Deploy an embedding model as a separate service",
+          see: "A request returns a vector of the expected length.",
+          hint: "Ollama serves embedding models too; a separate Deployment lets you scale it independently." },
+        { do: "Put LiteLLM in front: API keys per team, rate limits, routing to local first with fallback to a cloud model",
+          see: "Two team keys get separate limits, and stopping the local model makes requests fall back to the cloud model.",
+          hint: "Your `choose_backend` exercise is the routing rule; LiteLLM's config file expresses it." },
+        { do: "Add OpenTelemetry traces and metrics (latency, tokens, errors) with a Grafana dashboard",
+          see: "A dashboard showing requests per minute, p95 latency, tokens and errors, updating as you send requests.",
+          hint: "Start with the gateway's own metrics endpoint before adding custom spans." },
+        { do: "Load-test with k6 at increasing concurrency; record TTFT, tokens/s and p95; find the knee",
+          see: "A table or chart where p95 latency jumps sharply past some concurrency level: that's the knee.",
+          hint: "Use realistic prompt and output lengths, and step concurrency up (1, 2, 4, 8...) rather than jumping straight to a high number." },
+        { do: "Write a capacity note: replicas needed for a target load, with headroom and cost per 1,000 requests",
+          see: "One page with the target load, measured per-replica throughput, replica count and cost.",
+          hint: "Your `replicas_needed` and `fits_quota` exercises do the arithmetic." },
+        { do: "Automate the deploy with a pipeline and Helm or Kustomize; document rollback",
+          see: "A commit triggers a deploy, and the documented rollback command restores the previous version.",
+          hint: "Tag images with the commit SHA so rollback is redeploying a known tag." },
       ],
       cost: "Run locally with kind or OpenShift Local (CRC) on CPU to stay free. Cloud GPUs are expensive: if you use one, stop it immediately after testing.",
       resume: "Deployed a self-hosted LLM platform on Kubernetes with a gateway providing per-team quotas and cloud fallback, instrumented with OpenTelemetry, and load-tested to document capacity (p95 latency vs concurrency) and cost per request.",

@@ -12,7 +12,7 @@ const blankState = () => ({ companies: [], code: {}, activity: {} });
 function load() {
   let s = null;
   try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  return Object.assign(blankState(), s || {});
+  return migrateTrackProgress(Object.assign(blankState(), s || {})); // trackview.js
 }
 let S = load();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { alert("Could not save to browser storage."); } }
@@ -158,6 +158,8 @@ const views = {
           ${seg("data-dens", S.density || "comfortable", [["comfortable", "Comfortable"], ["compact", "Compact"]])}</div>
       </div>
       <div class="card"><h3>Your plan</h3>
+        <div class="setting"><div><b>Where you're starting from</b><div class="muted">New: Python from zero and AI from zero come first. Already code: straight to the main topics, with the beginner lessons as an option.</div></div>
+          ${seg("data-level", S.level || "new", LEVELS)}</div>
         <div class="setting"><div><b>${esc(T.name)} start date</b><div class="muted">${st.start ? `Week ${trackWeek("ai")} of ${T.weeks.length}.` : "Not started. Pick a date or start it from the track's Overview."}</div></div>
           <input type="date" data-trstartdate="ai" value="${st.start || ""}"></div>
       </div>
@@ -228,7 +230,7 @@ document.addEventListener("change", (e) => {
   else if (t.id === "s-import" && t.files[0]) {
     t.files[0].text().then((txt) => {
       // accepts this app's exports and the combined Prep Hub's (whose track progress lives in S.tr)
-      try { const d = JSON.parse(txt); if (!d || typeof d !== "object" || !("activity" in d)) throw 0; S = Object.assign(load(), d); searchIndex = null; save(); render(); }
+      try { const d = JSON.parse(txt); if (!d || typeof d !== "object" || !("activity" in d)) throw 0; S = migrateTrackProgress(Object.assign(load(), d)); searchIndex = null; save(); render(); }
       catch (err) { alert("That file isn't a valid progress export."); }
     });
   }

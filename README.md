@@ -17,17 +17,17 @@ Then visit http://localhost:5176. Opening `index.html` directly also works, but 
 
 | Page | What it does |
 | --- | --- |
-| Home | Track progress, AWS readiness, role readiness, a weekly rhythm and the 8 weeks at a glance |
-| AI / LLM | Overview, roadmap, lessons with runnable Python exercises, interview question bank, exam-style quiz, projects with resume bullets, certification paths |
+| Home | "Where are you starting from?" (new to programming and AI, or already code), a Start here / Continue button to the next unfinished lesson, the beginner lessons, track progress, AWS readiness, role readiness, a weekly rhythm and the 8 weeks at a glance |
+| AI / LLM | Overview, roadmap, lessons, interview question bank, exam-style quiz, projects with resume bullets, certification paths. Learn starts with **Python from zero** and **AI from zero** (5 lessons each, for people with no programming or ML background; optional for people who already code), then 18 topics. Every lesson has a worked example you can run and at least 3 Python exercises checked in the browser, each with an example, a hint and a model answer; nothing needs an API key. A lesson is complete when all its exercises pass (Roles lessons without code: when all their checks are answered correctly). Projects are self-reported, with what to do, what you should see and a hint for each step, and a cost / API-key note before each project |
 | AI / LLM > IBM Videos | Every IBM Technology playlist playable in the app with done-tracking and links to matching lessons, an expandable list of every video in each playlist, the IBM videos picked for each lesson, and a title search |
 | AWS Certs | Exam prep for AIF-C01 and AIP-C01: official domains and weightings, study notes, readiness checklists, week-by-week plans, timed practice exams and tutor mode with per-domain results |
 | Interview | Timed mock interviews (technical questions for AI Engineer or AI Cloud Engineer, plus behavioural) with self-scoring; weak answers are flagged "Review again" in the question bank. STAR story bank with theme and skill coverage; history |
 | Roles | AI Engineer and AI Cloud Engineer: skill demand across postings, self-rating and readiness, per-posting fit and prep notes, an **Add posting** form with skill suggestions, gap lessons, questions, quiz and projects |
 | Companies | What AI interviews look like at each tier of local employer, and an application tracker linked to postings |
-| Settings | 9 themes, accent colour, text size, density, plan start date, export / import |
+| Settings | 9 themes, accent colour, text size, density, where you're starting from, plan start date, export / import |
 | Search | **Ctrl+K** (or **/**) searches lessons, questions, projects, AWS domains, role skills, postings, IBM videos and your stories |
 
-Python exercises are auto-graded in the browser via [Pyodide](https://pyodide.org) (loaded from a CDN on first run).
+Python exercises are auto-graded in the browser via [Pyodide](https://pyodide.org) (loaded from a CDN on first run). Exercises have a stable `key`; progress is saved under it, so exercises can be reordered without moving anyone's progress.
 
 ## Files
 
@@ -35,12 +35,13 @@ Python exercises are auto-graded in the browser via [Pyodide](https://pyodide.or
 | --- | --- |
 | `index.html`, `style.css`, `app.js` | App shell, design system / themes, Home / Companies / Settings and the Python runner |
 | `tracks.js` | Video helpers (including `IBM`), the track registry and `extendTrack` (loaded first) |
-| `ai.js`, `ai-more.js` | AI / LLM track content, and extra lessons, exercises, questions and glossary merged into it |
-| `trackview.js` | Track engine (overview, learn, questions, quiz, projects, certs) and the Home page |
+| `ai.js`, `ai-more.js` | AI / LLM track content, and extra lessons (including Sampling in depth), exercises, questions and glossary merged into it |
+| `ai-zero.js` | The beginner lessons: Python from zero and AI from zero, plus short Learn addresses (`#/ai/learn/python`, `#/ai/learn/softmax`) |
+| `trackview.js` | Track engine (overview, learn, questions, quiz, projects, certs) and the Home page: the learning path for each starting level, earned lesson completion, exercise cards, and the migration of saved exercise progress to stable exercise keys |
 | `ibmvideos.js`, `ibmplaylists.js` | IBM Technology playlists, the IBM Videos tab, and every video in each playlist |
 | `awscerts.js`, `awsview.js` | AWS certification content and the practice-exam engine |
 | `roles.js` | Role definitions, the shared skill catalog, skill keywords and built-in postings |
-| `roles-learn.js` | Roles lessons, questions, quiz, projects and glossary |
+| `roles-learn.js` | Roles lessons, exercises, questions, quiz (including the checks for lessons without code), projects and glossary |
 | `roleview.js` | Roles pages: demand, readiness, postings and the add-posting form |
 | `interview.js` | Mock interviews, behavioural question bank, STAR story bank and mock history |
 | `router.js` | URL routing (`#/ai/learn/rag`, `#/ai/ibm/...`, `#/aws/aif`...): refresh, Back/Forward and bookmarks |
@@ -49,5 +50,5 @@ Python exercises are auto-graded in the browser via [Pyodide](https://pyodide.or
 ## Your data
 
 Progress is stored in the browser's `localStorage` under `ai-prep-v1`, including postings you
-add, stories and mock history. Use **Settings > Export** to back it up. An export from the
+add, stories and mock history. Use **Settings > Export** to back it up. Backups from before stable exercise keys still import: progress moves to the new keys, and old "Mark as reviewed" ticks are kept but no longer count as complete. An export from the
 combined Prep Hub app imports here too (its AI track, IBM, AWS and Roles progress carries over).

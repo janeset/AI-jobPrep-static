@@ -13,7 +13,7 @@ function currentPath() {
   const sec = sectionOf(tab), sub = tab.split(":")[1] || "overview";
   if (SEL_TRACKS.includes(sec)) {
     const st = trState(sec);
-    if (sub === "learn") return `${sec}/learn/${st.sel || TRACKS[sec].topics[0].id}`;
+    if (sub === "learn") return `${sec}/learn/${st.sel || defaultLesson(TRACKS[sec])}`;
     if (sub === "ibm" && st.ibmSel && st.ibmSel !== "overview") return `${sec}/ibm/${st.ibmSel}`;
     return `${sec}/${sub}`;
   }
@@ -21,14 +21,15 @@ function currentPath() {
   return tab;
 }
 
-// Sets state from an address. Unknown addresses fall back to Home.
+// Sets state from an address. Unknown addresses fall back to Home. A Learn address keeps whatever lesson
+// it names: short or old names resolve to the lesson (resolveLesson), and anything else shows "Lesson not found".
 function applyPath(hash) {
   const parts = decodeURIComponent(String(hash || "").replace(/^#\/?/, "")).split("/").filter(Boolean);
   const [a, b, c] = parts;
   if (!a) { tab = "home"; return; }
   if (SEL_TRACKS.includes(a)) {
     tab = `${a}:${b || "overview"}`;
-    if (b === "learn") trState(a).sel = c || null;
+    if (b === "learn") trState(a).sel = c ? resolveLesson(TRACKS[a], c) || c : null;
     if (b === "ibm") trState(a).ibmSel = parts.slice(2).join("/") || "overview";
   } else if (a === "aws" || a === "interview") tab = `${a}:${b || "overview"}`;
   else if (SIMPLE_TABS.includes(a)) tab = a;

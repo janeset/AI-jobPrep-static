@@ -99,7 +99,7 @@ function roleView(sub) {
 function rlOverview(st) {
   const { posts, list } = roleDemand(st.role), ready = roleReadiness(list), role = st.role === "all" ? null : roleById(st.role);
   const confident = list.filter((r) => levelOf(r.skill.id) === "confident").length;
-  const lessonsRead = ROLES.topics.filter((t) => st.read[t.id]).length;
+  const lessonsDone = ROLES.topics.filter((t) => topicDone(ROLES, t)).length;
   const top = list.filter((r) => r.score).slice(0, 8), shownTop = top.length ? top : list.slice(0, 8);
   const maxScore = Math.max(1, ...list.map((r) => r.score));
   const gaps = list.filter((r) => levelOf(r.skill.id) !== "confident").slice(0, 5);
@@ -116,7 +116,7 @@ function rlOverview(st) {
     <div class="grid">
       <div class="card"><div class="label">Postings</div><div class="stat">${posts.length}</div><div class="muted">${allPostings().length} across all roles</div></div>
       <div class="card"><div class="label">Skills confident</div><div class="stat">${confident}<small> / ${list.length}</small></div><div class="bar"><i style="width:${(100 * confident / Math.max(1, list.length)) | 0}%"></i></div></div>
-      <div class="card"><div class="label">Role lessons reviewed</div><div class="stat">${lessonsRead}<small> / ${ROLES.topics.length}</small></div><div class="muted">Gap lessons in Learn</div></div>
+      <div class="card"><div class="label">Role lessons completed</div><div class="stat">${lessonsDone}<small> / ${ROLES.topics.length}</small></div><div class="muted">Gap lessons in Learn</div></div>
       <div class="card"><div class="label">Readiness</div><div class="stat">${Math.round(ready * 100)}%</div><div class="muted">Weighted by posting demand</div></div>
     </div>
     <div class="cols-2">
