@@ -38,12 +38,14 @@ const goLearn = (id, tid) => `data-trgo="${id}|learn|${tid}"`;
 const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
 
 // ---------------- learning path & completion ----------------
-// Where the learner is starting from (S.level): "new" puts Python from zero and AI from zero (ai-zero.js,
-// topics with `zero` set) first; "code" keeps the topic order and leaves the beginner lessons as optional
-// extras. Unset counts as new until the learner picks, as in DSA Prep.
-const LEVELS = [["new", "I'm new to programming and AI"], ["code", "I already code"]];
+// Where the learner is starting from (S.level): "new" puts AI from zero (ai-zero.js, topics with `zero` set)
+// first; "code" keeps the topic order and leaves the beginner lessons as optional extras. Unset counts as new
+// until the learner picks.
+const LEVELS = [["new", "New to AI"], ["code", "I know the AI basics"]];
 const beginnerLevel = () => S.level !== "code";
-const ZERO_PARTS = { py: "Python from zero", ai: "AI from zero" };
+const ZERO_PARTS = { ai: "AI from zero" };
+// Shown at the top of every AI from zero lesson: the exercises assume some Python, and this app doesn't teach it.
+const ZERO_PY_NOTE = `<p class="callout zero-note">These exercises use a little Python. Learn the basics elsewhere first.</p>`;
 // Exercise progress is keyed by each exercise's stable `key`, so reordering exercises never moves progress.
 const exKey = (id, tid, ex) => `${id}:${tid}-${ex.key}`;
 const exPassed = (id, t) => (t.exercises || []).filter((ex) => trState(id).ex[exKey(id, t.id, ex)]).length;
@@ -99,6 +101,9 @@ function migrateTrackProgress(s) {
     }
   }
   if (s.level !== "new" && s.level !== "code") delete s.level;
+  // The Python beginner lessons were removed. Their exercise progress (ai:pz-*) stays in the data so old backups still
+  // round-trip, but a saved selection pointing at one of its lessons falls back to the learning path.
+  if (s.tr && s.tr.ai && /^pz-/.test(s.tr.ai.sel || "")) s.tr.ai.sel = null;
   return s;
 }
 
@@ -144,8 +149,8 @@ function go(t) {
 const levelPick = () => `<div class="card level-pick"><h3 style="margin-top:0">Where are you starting from?</h3>
   <p class="muted">This sets the order of the lessons. You can change it any time in Settings.</p>
   <div class="level-opts">
-    <button class="level-opt" data-level="new"><b>I'm new to programming and AI</b><span class="muted">Start with Python from zero (values, functions, lists, dictionaries, error messages), then AI from zero (what a model, training and an LLM are), then the main topics. No API key needed.</span></button>
-    <button class="level-opt" data-level="code"><b>I already code</b><span class="muted">Go straight to the main topics, starting with machine learning fundamentals and how LLMs work. The beginner lessons stay available as an option.</span></button>
+    <button class="level-opt" data-level="new"><b>New to AI</b><span class="muted">Start with AI from zero (what a model, training and an LLM are), then machine learning fundamentals. You need a little Python.</span></button>
+    <button class="level-opt" data-level="code"><b>I know the AI basics</b><span class="muted">Skip AI from zero and start at machine learning fundamentals. AI from zero stays available as an option.</span></button>
   </div></div>`;
 
 // The beginner lessons on Home: first for new learners, marked optional for people who already code.
@@ -158,8 +163,8 @@ function zeroHomeCard() {
         <div class="row">${topicDone(T, t) ? '<span class="badge done">Done</span>' : ""}<button class="btn small" ${goLearn("ai", t.id)}>Open</button></div></div>`).join("")}</div></div>`;
   };
   return `<div class="card zero-card ${opt ? "optional" : ""}"><div class="section-head"><h3 style="margin:0">${opt ? "Beginner lessons (optional)" : "Start here: the beginner lessons"}</h3></div>
-    <p class="muted">${opt ? "Skip these if you code already, or use them to fill gaps: Python basics, and what models, training and LLMs are, in plain language." : "No programming or machine-learning background needed. Each lesson explains one idea step by step with a worked example, then gives you small exercises that run right here in the browser, each with an example, a hint and a model answer. Nothing needs an API key."}</p>
-    <div class="cols-2">${part("py")}${part("ai")}</div></div>`;
+    <p class="muted">${opt ? "Skip these if you know the basics, or use them to fill gaps: what models, training and LLMs are, in plain language." : "No machine-learning background needed. Each lesson explains one idea step by step with a worked example, then gives you small exercises that run right here in the browser, each with an example, a hint and a model answer. Nothing needs an API key."}</p>
+    ${ZERO_PY_NOTE}${part("ai")}</div>`;
 }
 
 function homeView() {
@@ -187,7 +192,7 @@ function homeView() {
       <div style="position:relative;z-index:1">
         <div class="eyebrow">${esc(dateStr)} · Toronto &amp; Kitchener-Waterloo</div>
         <h1>${hello}.</h1>
-        <p>AI engineering prep for LLM roles. ${beginnerLevel() ? "Start from zero with Python and AI basics, then" : "Work through"} ${T.topics.filter((t) => !t.zero).length} topics with worked examples and Python exercises that are checked in your browser, an 8-week plan with hands-on projects, IBM Technology videos, AWS AI certification practice, and the skills real AI Engineer postings ask for.</p>
+        <p>AI engineering prep for LLM roles. ${beginnerLevel() ? "Start from zero with AI basics, then" : "Work through"} ${T.topics.filter((t) => !t.zero).length} topics with worked examples and Python exercises that are checked in your browser, an 8-week plan with hands-on projects, IBM Technology videos, AWS AI certification practice, and the skills real AI Engineer postings ask for.</p>
         <div class="row" style="margin-top:14px">${main}
           <span class="badge plain">&#128293; ${st} day streak</span><span class="badge plain">${todayCount} thing${todayCount === 1 ? "" : "s"} done today</span>
         </div>
@@ -206,7 +211,7 @@ function homeView() {
           <tr><td>Sun</td><td>Light review: glossary, flash cards, plan the week</td></tr></table>
         <p class="muted">Employers want evidence: a deployed RAG or agent project with an eval harness beats any certificate.</p></div>
       <div class="card"><div class="section-head"><h3>Your ${T.weeks.length} weeks</h3><button class="btn small ghost" data-trgo="ai|roadmap|">Roadmap &rarr;</button></div><div class="list">
-        ${beginnerLevel() ? `<div class="li"><div><span class="t">Before week 1</span><div class="muted">Python from zero and AI from zero, at your own pace</div></div></div>` : ""}
+        ${beginnerLevel() ? `<div class="li"><div><span class="t">Before week 1</span><div class="muted">AI from zero, at your own pace</div></div></div>` : ""}
         ${T.weeks.map((w) => `<div class="li"><div><span class="t">Week ${w.n}</span><div class="muted">${esc(w.title)}</div></div>${w.n === wk ? '<span class="badge accent">This week</span>' : ""}</div>`).join("")}
       </div>${s.start ? "" : `<p class="muted">Start the plan from the track card to track your current week.</p>`}</div>
     </div>`;
@@ -278,7 +283,7 @@ function trOverview(T, st) {
     <div class="cols-2">
       <div class="card"><div class="section-head"><h3>${wk ? "This week" : "Week 1 preview"} · ${esc(w.title)}</h3></div>
         <p class="muted">${esc(w.goal)}</p>
-        ${!wk && beginnerLevel() && zeroLessons(T).some((t) => !topicDone(T, t)) ? `<p class="muted">New to programming or AI? Do <button class="link-btn inline-link" ${goLearn(id, zeroLessons(T)[0].id)}>Python from zero</button> and AI from zero first.</p>` : ""}
+        ${!wk && beginnerLevel() && zeroLessons(T).some((t) => !topicDone(T, t)) ? `<p class="muted">New to AI? Do <button class="link-btn inline-link" ${goLearn(id, zeroLessons(T)[0].id)}>AI from zero</button> first.</p>` : ""}
         <div class="list">${w.topics.map((t) => topicRow(T, st, t)).join("")}${w.labs.map((l) => labRow(T, T.labs.find((x) => x.id === l))).join("")}
           ${!w.topics.length && !w.labs.length ? `<div class="li"><span>Review week: quizzes, the question bank and certification prep.</span><button class="btn small" data-trgo="${id}|quiz|">Quiz</button></div>` : ""}</div></div>
       <div class="card"><div class="section-head"><h3>Certifications</h3><button class="btn small ghost" data-trgo="${id}|certs|">All certs &rarr;</button></div>
@@ -292,8 +297,8 @@ function trRoadmap(T, st) {
   const zeroBlock = zero.length ? (() => {
     const done = zero.filter((t) => topicDone(T, t)).length;
     return `<details class="card week" ${beginnerLevel() && done < zero.length ? "open" : ""}>
-      <summary><span style="flex:1">${beginnerLevel() ? "Before week 1 · Python from zero and AI from zero" : "Optional · Beginner lessons"}</span><span class="muted">${done}/${zero.length}</span></summary>
-      <p class="muted">${beginnerLevel() ? "For people new to programming or AI. Take them at your own pace before the weekly plan starts." : "Python basics and plain-language AI basics, if you want a refresher."}</p>
+      <summary><span style="flex:1">${beginnerLevel() ? "Before week 1 · AI from zero" : "Optional · AI from zero"}</span><span class="muted">${done}/${zero.length}</span></summary>
+      <p class="muted">${beginnerLevel() ? "For people new to AI. Take them at your own pace before the weekly plan starts." : "Plain-language AI basics, if you want a refresher."}</p>
       <div class="list">${zero.map((t) => topicRow(T, st, t.id)).join("")}</div></details>`;
   })() : "";
   return pageHead(`${esc(T.name)} roadmap`, `${T.weeks.length} weeks. ${st.start ? `Started ${st.start}; change the date in Settings.` : "Start the plan from the Overview to track your current week."}`) + zeroBlock +
@@ -369,11 +374,11 @@ function trNav(T, tid) {
   return `<div class="row between">${prev ? `<button class="btn" data-trsel="${T.id}|${prev.id}">&larr; ${esc(prev.title)}</button>` : "<span></span>"}
     ${next ? `<button class="btn primary" data-trsel="${T.id}|${next.id}">Next: ${esc(next.title)} &rarr;</button>` : `<button class="btn primary" data-trgo="${T.id}|quiz|">Take a quiz &rarr;</button>`}</div>`;
 }
-// "Lesson 2 of 5 in Python from zero. Next: Lists and loops" on beginner lessons.
+// The Python note, then "Lesson 2 of 5 in AI from zero. Next: ..." on beginner lessons.
 function zeroPos(T, t) {
   const ls = zeroLessons(T, t.zero), i = ls.findIndex((x) => x.id === t.id);
-  const nx = ls[i + 1] || (t.zero === "py" ? zeroLessons(T, "ai")[0] : learnPath(T).find((x) => !x.zero));
-  return `<p class="lesson-pos">Lesson ${i + 1} of ${ls.length} in ${esc(ZERO_PARTS[t.zero])}.${nx ? ` Next: <button class="link-btn inline-link" data-trsel="${T.id}|${nx.id}">${esc(nx.zero && nx.zero !== t.zero ? ZERO_PARTS[nx.zero] + ": " + nx.title : nx.title)}</button>` : ""}</p>`;
+  const nx = ls[i + 1] || learnPath(T).find((x) => !x.zero);
+  return ZERO_PY_NOTE + `<p class="lesson-pos">Lesson ${i + 1} of ${ls.length} in ${esc(ZERO_PARTS[t.zero])}.${nx ? ` Next: <button class="link-btn inline-link" data-trsel="${T.id}|${nx.id}">${esc(nx.zero && nx.zero !== t.zero ? ZERO_PARTS[nx.zero] + ": " + nx.title : nx.title)}</button>` : ""}</p>`;
 }
 
 function exerciseCard(id, tid, ex, j, st) {
@@ -419,7 +424,7 @@ function trTopic(T, st, tid) {
     ${checks.length ? `<div class="label" style="margin:6px 0 8px">Checks: answer each one correctly to complete this lesson</div>${checks.map((q, n) => checkCard(T, st, q, n + 1)).join("")}` : ""}
     ${t.cards && t.cards.length ? `<div class="card"><h3>Flash cards</h3><p class="muted">Say your answer, then reveal it. These are for review and don't affect completion.</p>${t.cards.map(([q, a], k) => { const key = `${id}:${tid}:${k}`; return `<div class="flash"><div class="row between"><b>${esc(q)}</b>
       <button class="btn small ${shown[key] ? "ghost" : ""}" data-trq="${key}">${shown[key] ? "Hide" : "Show answer"}</button></div>${shown[key] ? `<p class="flash-a">${esc(a)}</p>` : ""}</div>`; }).join("")}</div>` : ""}
-    <div class="card"><div class="section-head"><h3>Videos</h3><span class="row"><a class="btn small" href="${yt(t.yt || t.title + (t.zero === "py" ? " python for beginners" : " LLM explained"))}" target="_blank" rel="noopener">More videos &nearr;</a>${t.zero ? "" : channelLink(T)}</span></div>
+    <div class="card"><div class="section-head"><h3>Videos</h3><span class="row"><a class="btn small" href="${yt(t.yt || t.title + " LLM explained")}" target="_blank" rel="noopener">More videos &nearr;</a>${t.zero ? "" : channelLink(T)}</span></div>
       ${vlist.length ? vids(vlist) : `<p class="muted">No verified video for this lesson yet; the search link finds popular ones.</p>`}</div>
     ${hasQ || hasQuiz ? `<div class="row" style="margin-bottom:var(--gap)">${hasQ ? `<button class="btn ghost" data-trgo="${id}|questions|${tid}">Interview questions on this</button>` : ""}${hasQuiz ? `<button class="btn ghost" data-trgo="${id}|quiz|${tid}">Quiz on this</button>` : ""}</div>` : ""}
     ${trNav(T, tid)}`;

@@ -158,7 +158,7 @@ const views = {
           ${seg("data-dens", S.density || "comfortable", [["comfortable", "Comfortable"], ["compact", "Compact"]])}</div>
       </div>
       <div class="card"><h3>Your plan</h3>
-        <div class="setting"><div><b>Where you're starting from</b><div class="muted">New: Python from zero and AI from zero come first. Already code: straight to the main topics, with the beginner lessons as an option.</div></div>
+        <div class="setting"><div><b>Where you're starting from</b><div class="muted">New to AI: AI from zero comes first. Know the basics: start at machine learning fundamentals, with AI from zero as an option.</div></div>
           ${seg("data-level", S.level || "new", LEVELS)}</div>
         <div class="setting"><div><b>${esc(T.name)} start date</b><div class="muted">${st.start ? `Week ${trackWeek("ai")} of ${T.weeks.length}.` : "Not started. Pick a date or start it from the track's Overview."}</div></div>
           <input type="date" data-trstartdate="ai" value="${st.start || ""}"></div>
