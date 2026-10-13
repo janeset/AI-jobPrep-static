@@ -129,6 +129,7 @@ function ring(pct, label, size = 120) {
 function renderNav() {
   const sec = sectionOf(tab);
   document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("active", (b.dataset.nav && b.dataset.nav === tab) || (!!b.dataset.track && b.dataset.track === sec)));
+  showActiveNav();
   const sub = $("#subnav");
   if (!sub) return;
   if (!sec) { sub.hidden = true; sub.innerHTML = ""; return; }
@@ -136,6 +137,24 @@ function renderNav() {
   sub.hidden = false;
   sub.innerHTML = `<div class="subnav-inner"><span class="subnav-title t-${sec}">${TRACK_ICON[sec]}${sec === "interview" ? "Interview" : esc(TRACKS[sec].name)}</span>
     <div class="subnav-tabs">${items.map(([k, l]) => `<button data-tab="${k}" class="${k === tab ? "active" : ""}">${esc(l)}</button>`).join("")}</div></div>`;
+}
+// On narrow screens the main nav scrolls sideways: keep the current tab in view, and fade the edge
+// that has more tabs behind it so people know to swipe.
+function navEdges() {
+  const n = $("#nav");
+  n.classList.toggle("more-left", n.scrollLeft > 1);
+  n.classList.toggle("more-right", n.scrollLeft + n.clientWidth < n.scrollWidth - 1);
+}
+let navWatched = false;
+function showActiveNav() {
+  const n = $("#nav"), a = n.querySelector("button.active");
+  if (!navWatched) { n.addEventListener("scroll", navEdges, { passive: true }); new ResizeObserver(navEdges).observe(n); navWatched = true; }
+  if (a && n.scrollWidth > n.clientWidth) {
+    const l = a.offsetLeft - n.offsetLeft, r = l + a.offsetWidth;
+    if (l < n.scrollLeft) n.scrollLeft = l - 24;
+    else if (r > n.scrollLeft + n.clientWidth) n.scrollLeft = r - n.clientWidth + 24;
+  }
+  navEdges();
 }
 // The page a top-level section opens on the first time.
 const defaultTab = (k) => (k === "interview" ? "interview:mock" : k + ":overview");

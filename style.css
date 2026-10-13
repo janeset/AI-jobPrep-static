@@ -146,6 +146,10 @@ nav#nav { display: flex; gap: 2px; flex: 1; overflow-x: auto; scrollbar-width: n
 nav#nav > :first-child { margin-left: auto; }
 nav#nav > :last-child { margin-right: auto; }
 nav#nav::-webkit-scrollbar { display: none; }
+/* A fade on the edge with more tabs behind it (set by navEdges in trackview.js). */
+nav#nav.more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+nav#nav.more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+nav#nav.more-left.more-right { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
 nav#nav button {
   display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--muted);
   padding: 7px 9px; border-radius: 999px; cursor: pointer; font: inherit; font-size: .875rem; font-weight: 500; white-space: nowrap;
