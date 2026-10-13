@@ -44,7 +44,10 @@ const LEVELS = [["new", "New to AI"], ["code", "I know the AI basics"]];
 const beginnerLevel = () => S.level !== "code";
 const ZERO_PARTS = { ai: "AI from zero" };
 // Shown at the top of every AI from zero lesson: the exercises assume some Python, and this app doesn't teach it.
-const ZERO_PY_NOTE = `<p class="callout zero-note">These exercises use a little Python. Learn the basics elsewhere first.</p>`;
+// The Python prerequisite: the app doesn't teach Python, so it points to one free course (checked on its own site).
+const PY_COURSE = { name: "Kaggle Learn: Python", url: "https://www.kaggle.com/learn/python", verified: "2026-10-13" };
+const pyCourseLink = () => `<a href="${PY_COURSE.url}" target="_blank" rel="noopener">Learn the Python basics first</a> (${esc(PY_COURSE.name)}, free, about 5 hours; ${verifiedTag(PY_COURSE.verified)})`;
+const ZERO_PY_NOTE_HTML = () => `<p class="callout zero-note">These exercises use a little Python: functions, lists, loops and dictionaries. New to Python? ${pyCourseLink()}.</p>`;
 // Exercise progress is keyed by each exercise's stable `key`, so reordering exercises never moves progress.
 const exKey = (id, tid, ex) => `${id}:${tid}-${ex.key}`;
 const exPassed = (id, t) => (t.exercises || []).filter((ex) => trState(id).ex[exKey(id, t.id, ex)]).length;
@@ -150,7 +153,8 @@ const levelPick = () => `<div class="card level-pick"><h3 style="margin-top:0">W
   <div class="level-opts">
     <button class="level-opt" data-level="new"><b>New to AI</b><span class="muted">Start with AI from zero (what a model, training and an LLM are), then machine learning fundamentals. You need a little Python.</span></button>
     <button class="level-opt" data-level="code"><b>I know the AI basics</b><span class="muted">Skip AI from zero and start at machine learning fundamentals. AI from zero stays available as an option.</span></button>
-  </div></div>`;
+  </div>
+  <p class="muted" style="margin-bottom:0">New to Python? ${pyCourseLink()}.</p></div>`;
 
 // The beginner lessons on Home: first for new learners, marked optional for people who already code.
 function zeroHomeCard() {
@@ -163,7 +167,7 @@ function zeroHomeCard() {
   };
   return `<div class="card zero-card ${opt ? "optional" : ""}"><div class="section-head"><h3 style="margin:0">${opt ? "AI from zero (optional)" : "AI from zero: the beginner lessons"}</h3></div>
     <p class="muted">${opt ? "Skip these if you know the basics, or use them to fill gaps: what models, training and LLMs are, in plain language." : "No machine-learning background needed. Each lesson explains one idea step by step with a worked example, then gives you small exercises that run right here in the browser, each with an example, a hint and a model answer. Nothing needs an API key."}</p>
-    ${ZERO_PY_NOTE}${part("ai")}</div>`;
+    ${ZERO_PY_NOTE_HTML()}${part("ai")}</div>`;
 }
 
 function homeView() {
@@ -193,7 +197,7 @@ function homeView() {
       <div style="position:relative;z-index:1">
         <div class="eyebrow">${esc(dateStr)}</div>
         <h1>${hello}.</h1>
-        <p>AI engineering prep for LLM roles: short lessons with Python exercises checked right in your browser, then hands-on projects. No API key needed to start.</p>
+        <p>AI engineering prep for LLM roles: short lessons with small Python exercises checked right in your browser, then hands-on projects. You need basic Python; no API key needed to start.</p>
         <div class="row" style="margin-top:14px">${main}</div>
       </div>
     </section>
@@ -370,7 +374,7 @@ function trNav(T, tid) {
 function zeroPos(T, t) {
   const ls = zeroLessons(T, t.zero), i = ls.findIndex((x) => x.id === t.id);
   const nx = ls[i + 1] || learnPath(T).find((x) => !x.zero);
-  return ZERO_PY_NOTE + `<p class="lesson-pos">Lesson ${i + 1} of ${ls.length} in ${esc(ZERO_PARTS[t.zero])}.${nx ? ` Next: <button class="link-btn inline-link" data-trsel="${T.id}|${nx.id}">${esc(nx.zero && nx.zero !== t.zero ? ZERO_PARTS[nx.zero] + ": " + nx.title : nx.title)}</button>` : ""}</p>`;
+  return ZERO_PY_NOTE_HTML() + `<p class="lesson-pos">Lesson ${i + 1} of ${ls.length} in ${esc(ZERO_PARTS[t.zero])}.${nx ? ` Next: <button class="link-btn inline-link" data-trsel="${T.id}|${nx.id}">${esc(nx.zero && nx.zero !== t.zero ? ZERO_PARTS[nx.zero] + ": " + nx.title : nx.title)}</button>` : ""}</p>`;
 }
 
 function exerciseCard(id, tid, ex, j, st) {
