@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI / LLM Prep Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, a summary strip up top, then sections set off by labeled rules (a code review record). */
+:root {
+  --bg: #f6f7f8;
+  --surface: #ffffff;
+  --fg: #1b2228;
+  --muted: #5a6670;
+  --line: #dde2e6;
+  --accent: #0f6b66;
+  --accent-soft: #e2f1ef;
+  --add: #1f7a3a; --add-bg: #e5f4e9;
+  --del: #a8322b; --del-bg: #fbe9e7;
+  --mod: #6a5a12; --mod-bg: #f5efd6;
+  --warn: #8a5a00; --warn-bg: #fdf3dc;
+  --display: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171b; --surface: #1a2126; --fg: #e3e8eb; --muted: #97a3ab; --line: #2c353c;
+  --accent: #5cc4bb; --accent-soft: #173431;
+  --add: #7fd497; --add-bg: #19321f; --del: #f19a92; --del-bg: #3a1d1b;
+  --mod: #e0cc7a; --mod-bg: #312b14; --warn: #f0c46a; --warn-bg: #352a12;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #12171b; --surface: #1a2126; --fg: #e3e8eb; --muted: #97a3ab; --line: #2c353c;
+  --accent: #5cc4bb; --accent-soft: #173431;
+  --add: #7fd497; --add-bg: #19321f; --del: #f19a92; --del-bg: #3a1d1b;
+  --mod: #e0cc7a; --mod-bg: #312b14; --warn: #f0c46a; --warn-bg: #352a12;
+  color-scheme: dark;
+}
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); padding-inline: 16px; padding-block: 40px 64px; }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 40px; }
+header { display: grid; gap: 10px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 600 clamp(28px, 5vw, 38px)/1.15 var(--display); margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0; max-width: 62ch; }
+code { font: 0.88em var(--mono); background: var(--accent-soft); color: var(--fg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 6px 0 0; padding: 0; list-style: none; font: 13px/1.4 var(--mono); color: var(--muted); }
+.facts b { color: var(--fg); font-weight: 500; }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.summary div { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.summary .n { font: 600 24px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.summary .l { font-size: 13px; color: var(--muted); }
+section { display: grid; gap: 14px; }
+h2 { font: 600 21px/1.3 var(--display); margin: 0; padding-top: 14px; border-top: 1px solid var(--line); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+h2 .tag { font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0; max-width: 66ch; }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+ul.plain li { max-width: 66ch; }
+.files { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.files li { font: 13px/1 var(--mono); padding: 6px 8px 6px 6px; border-radius: 5px; display: inline-flex; gap: 6px; align-items: center; }
+.files li::before { font-weight: 600; width: 1ch; text-align: center; }
+.files .M { background: var(--mod-bg); color: var(--mod); } .files .M::before { content: "M"; }
+.files .A { background: var(--add-bg); color: var(--add); } .files .A::before { content: "A"; }
+.files .D { background: var(--del-bg); color: var(--del); text-decoration: line-through; } .files .D::before { content: "D"; }
+.legend { font-size: 13px; color: var(--muted); }
+dl.decisions { margin: 0; display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+dl.decisions > div { display: grid; grid-template-columns: 11rem 1fr; gap: 4px 20px; padding: 14px 16px; border-top: 1px solid var(--line); }
+dl.decisions > div:first-child { border-top: 0; }
+dl.decisions dt { font-weight: 600; font-size: 15px; }
+dl.decisions dd { margin: 0; min-width: 0; color: var(--fg); }
+@media (max-width: 560px) { dl.decisions > div { grid-template-columns: 1fr; } }
+.tests { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.tests li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.pill { font: 600 11px/1 var(--mono); letter-spacing: .05em; text-transform: uppercase; padding: 5px 7px; border-radius: 4px; margin-top: 2px; }
+.pill.pass { background: var(--add-bg); color: var(--add); }
+.pill.part { background: var(--warn-bg); color: var(--warn); }
+.pill.na { background: var(--accent-soft); color: var(--accent); }
+.note { background: var(--warn-bg); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; }
+.note strong { color: var(--warn); font-size: 14px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Review report · janeset/AI-jobPrep-static</div>
+    <h1>AI / LLM Prep review: changes and results</h1>
+    <p class="lede">All changes from the review are pushed to <code>main</code>. This page lists which files changed, where the work differs from the original request, which links couldn't be checked, and how the acceptance tests went.</p>
+    <ul class="facts">
+      <li>Commits <b>3b57588..e544b6a</b></li>
+      <li>Branch <b>main</b> (pushed)</li>
+      <li>Final check <b>2026-10-13</b></li>
+    </ul>
+  </header>
+
+  <div class="summary" aria-label="Summary">
+    <div><span class="n">11</span><span class="l">commits</span></div>
+    <div><span class="n">20</span><span class="l">files changed</span></div>
+    <div><span class="n">742</span><span class="l">external links checked</span></div>
+    <div><span class="n">7 / 7</span><span class="l">acceptance tests passed</span></div>
+  </div>
+
+  <section>
+    <h2>Changed files <span class="tag">17 modified · 1 added · 2 deleted</span></h2>
+    <ul class="files">
+      <li class="M">README.md</li><li class="M">index.html</li><li class="M">style.css</li><li class="M">app.js</li>
+      <li class="M">router.js</li><li class="M">search.js</li><li class="M">tracks.js</li><li class="M">trackview.js</li>
+      <li class="M">ai.js</li><li class="M">ai-more.js</li><li class="M">ai-zero.js</li><li class="M">roles.js</li>
+      <li class="M">roles-learn.js</li><li class="M">roleview.js</li><li class="M">interview.js</li>
+      <li class="M">ibmvideos.js</li><li class="M">ibmplaylists.js</li>
+      <li class="A">anthropic.js</li>
+      <li class="D">awscerts.js</li><li class="D">awsview.js</li>
+    </ul>
+    <p class="legend">M modified · A added · D deleted</p>
+  </section>
+
+  <section>
+    <h2>What changed</h2>
+    <ul class="plain">
+      <li><strong>Python from zero removed:</strong> its lessons, Home card, sidebar entry, routes, search entries and README section are gone. The AI from zero lessons now say the exercises need a little Python. Old progress on those lessons stays in saved data and exports but isn't shown.</li>
+      <li><strong>Cloud-provider content removed:</strong> the AWS Certs tab, AWS and Azure certifications, the AI Cloud Engineer role, and the OpenShift and GPU-in-the-cloud lessons.</li>
+      <li><strong>New Claude &amp; Anthropic track:</strong> five courses, four certifications checked on Anthropic's training site, and an eligibility note. No prices are shown.</li>
+      <li><strong>OpenAI Academy section added:</strong> four course tracks.</li>
+      <li><strong>Simpler Home:</strong> one "Start here" button. Streak and progress cards appear only after the first passed exercise. The local job market is now an optional setting, off by default.</li>
+      <li><strong>Week-1 project added:</strong> "First working AI app".</li>
+      <li><strong>Exercises easier to start:</strong> each code box now has its instruction above it, and typing on the <code>pass</code> line replaces it.</li>
+      <li><strong>Python runner:</strong> it shows a loading message, and it stops after 30 seconds with a clear message.</li>
+      <li><strong>"Last verified" dates</strong> are shown on the certifications, course lists, IBM lists and full-course videos.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Where the work differs from the request</h2>
+    <dl class="decisions">
+      <div><dt>Cert name</dt><dd>Listed as "Claude Certified Associate – Foundations", the title on its exam page. Anthropic's FAQ calls it "Claude Certified Associate".</dd></div>
+      <div><dt>Extra course</dt><dd>Added "Model Context Protocol: Advanced Topics" as a fifth course, after the MCP intro.</dd></div>
+      <div><dt>Exercise placeholder</dt><dd>"# Write your line below" only appeared in the removed Python lessons. The remaining 93 exercises use <code>pass</code>, so the instruction and the clear-on-typing behaviour work on the <code>pass</code> line.</dd></div>
+      <div><dt>CI/CD lesson</dt><dd>Kept and rewritten to be provider-neutral (GitHub Actions) instead of deleted.</dd></div>
+      <div><dt>OpenShift</dt><dd>The Red Hat OpenShift skill stays because it links to the Cloud Prep app. Its lesson was removed.</dd></div>
+      <div><dt>IBM videos</dt><dd>The GPU and inference videos moved to the Self-hosting lesson. Three news-podcast episodes whose titles named AWS were dropped.</dd></div>
+      <div><dt>Old backups</dt><dd>Migrations for removed exercises (<code>cloudai-0</code>, <code>gpucloud-0</code>) stay in <code>EX_MOVED</code>, so old backups still import correctly.</dd></div>
+      <div><dt>Level choice</dt><dd>Now reads "New to AI" / "I know the AI basics".</dd></div>
+      <div><dt>Python timeout</dt><dd>Added a 30-second timeout. There was none before, and the acceptance test needed one.</dd></div>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Links not verified</h2>
+    <ul class="plain">
+      <li><strong>OpenAI Help Center (help.openai.com):</strong> blocks automated checks with a 403 error. The app doesn't link to it.</li>
+      <li><strong>OpenAI certifications:</strong> no official page was found, so the app shows them as "not yet verified".</li>
+    </ul>
+    <p>All 742 other external links and YouTube video and playlist IDs resolved when checked on 2026-10-12.</p>
+  </section>
+
+  <section>
+    <h2>Acceptance tests</h2>
+    <ul class="tests">
+      <li><span class="pill pass">Pass</span><span>The first AI lesson is one click away from a fresh profile.</span></li>
+      <li><span class="pill pass">Pass</span><span>A text search of the repo finds no AIF-C01, AIP-C01, MLA-C01, AI-900, AI-102, AWS, Azure, Bedrock, SageMaker or "Python from zero".</span></li>
+      <li><span class="pill pass">Pass</span><span>Every nav tab survives a full reload, and Back and Forward work with real clicks.</span></li>
+      <li><span class="pill pass">Pass</span><span>Python exercises show pass and fail results, a loading message and the timeout message.</span></li>
+      <li><span class="pill pass">Pass</span><span>Export and import work into a clean profile. An old backup with Python from zero, AWS and AI Cloud data still imports.</span></li>
+      <li><span class="pill pass">Pass</span><span>At 380px wide, no page scrolls sideways and nothing is clipped. Re-checked on 2026-10-13 from a fresh profile on 14 pages. The only buttons past the screen edge sit in the sub-tab strip, which scrolls sideways by design.</span></li>
+      <li><span class="pill pass">Pass</span><span>At 1280px wide, no page scrolls sideways and the console shows no errors.</span></li>
+    </ul>
+    <div class="note">
+      <strong>Not reviewed by eye</strong>
+      <p>Home at 380px was checked with a screenshot. The other pages were checked by measuring page width, because the in-app browser returned tiled or cropped screenshots. A quick look on a real phone would close that gap.</p>
+    </div>
+  </section>
+
+  <footer>Prepared 2026-10-13 for the AI / LLM Prep review.</footer>
+</div>
+</body>
+</html>
