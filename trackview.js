@@ -176,7 +176,8 @@ function homeView() {
   const st = streak(), todayCount = S.activity[today()] || 0;
   const T = TRACKS.ai, s = trState("ai"), wk = trackWeek("ai"), next = pathNext(T);
   // Before the first passed exercise, Home shows one action (Start here) and no zero-valued stats.
-  const started = Object.values(S.tr || {}).some((x) => Object.keys((x && x.ex) || {}).length);
+  // Only current exercises count: hidden progress kept from removed lessons (pz-*) doesn't.
+  const started = Object.keys(TRACKS).some((id) => TRACKS[id].topics.some((t) => exPassed(id, t)));
   const main = !next ? `<button class="btn primary" data-trgo="ai|quiz|">Every lesson done. Take a quiz &rarr;</button>`
     : started ? `<button class="btn primary" ${goLearn("ai", next.id)}>Continue: ${esc(next.title)} &rarr;</button>`
     : `<button class="btn primary btn-lg" ${goLearn("ai", next.id)}>Start here &rarr;</button><span class="muted">First lesson: ${esc(next.title)}</span>`;
