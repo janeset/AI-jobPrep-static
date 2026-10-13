@@ -8,7 +8,7 @@
 // when something can't be checked, say "not yet verified" in the UI rather than guessing.
 
 const CLAUDE = {
-  verified: "2026-10-12",
+  verified: "2026-10-13",
   catalog: "https://anthropic.skilljar.com/",
   // Learning order for this app: fluency first, then everyday Claude, then building with the API and MCP.
   courses: [
@@ -48,13 +48,13 @@ AI.certs.push(...CLAUDE_CERTS);
 // OpenAI: only what could be confirmed on OpenAI's own site. The course hub and its four tracks were
 // verified; no OpenAI certification page could be verified, so the UI says so.
 const OPENAI_LEARN = {
-  verified: "2026-10-12",
+  verified: "2026-10-13",
   url: "https://academy.openai.com/pages/courses",
   tracks: [
-    ["Apply AI at Work", "Using ChatGPT and AI in everyday work."],
-    ["Build with AI", "The AI Builder courses: design, build, evaluate and deploy AI solutions with Codex and the OpenAI API."],
-    ["Lead AI Adoption", "Rolling AI out across a team or organization."],
-    ["Teach and Learn with AI", "For educators and students."],
+    ["Apply AI at Work", "For knowledge workers: AI basics, then repeatable workflows and directing work with agents."],
+    ["Build with AI", "For builders: the AI Builder courses on designing, building, evaluating and deploying AI solutions with Codex and the OpenAI API."],
+    ["Lead AI Adoption", "For leaders: work through one AI initiative and draft an AI strategy, with ownership, governance, a roadmap and an adoption plan."],
+    ["Teach and Learn with AI", "For education: using AI to study, teach and learn faster."],
   ],
   certs: "not yet verified",
 };
